@@ -1,2 +1,7 @@
 # CNA-HD
-Contextual Neural Assistant for Hotel Description
+## Contextual Neural Assistant for Hotel Description
+_________________
+
+### Этот репозиторий будет представлять собой решение кейса для программы Сириус ИИ 24 Ассистент отельера для создания описания отеля (МТС, ФКН ВШЭ)
+
+
