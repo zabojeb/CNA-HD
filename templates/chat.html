@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Chat</title>
+</head>
+ <p> {{ session["description"] }}</p>
+ <p> {{ session["address"] }}</p>
+ <p> <img src="{{ photo }}" > </p>
+
+
+
+ <a>сюда вводить сообщение</a>
+ <form action="" method="POST">
+    <input type="text" name="message" />
+    <input type="submit" value="send message" />
+ </form>
+<p>
+    Это чат
+{% if messages %}
+{% for item in messages %}
+<p>{{ item }}</p>
+{% endfor %}
+{% endif %}
+</p>
+ <script>
+    // Reload the page every 5 seconds
+    setTimeout(function() {
+        location.reload();
+    }, 10000);
+</script>
+</body>
+
+</html>
+{% endblock %}
