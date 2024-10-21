@@ -4,6 +4,9 @@ from werkzeug.utils import secure_filename
 
 from data.startform import StartForm
 
+# Импорт ML функций для инференса
+from ai.llm import process_message
+
 DEBUG = True
 
 app = Flask(__name__)
@@ -12,29 +15,30 @@ UPLOAD_FOLDER = os.path.join("staticFiles", "uploads")
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 
 
+# Редирект на стартовую страницу
 @app.route("/")
 def index():
     return redirect("/start")
 
 
-# переброс
-
-
+# Редирект на чат
 @app.route("/chat", methods=["GET", "POST"])
 def chat():
     if "messages" not in session:
         session["messages"] = []
+
     if "uploaded_data_file_path" not in session:
         session["uploaded_data_file_path"] = None
+
     session.modified = True
     message = "Сообщение"
-    # print(session["uploaded_data_file_path"])
+
     if request.method == "POST":
-        # вызов какойто внешней функции с message
         message = request.form["message"]
         session["messages"].append(message)
-        # тут надо азкинуть в историю и ответ нейронки
-        session["messages"].append(message + " <-- ответ нейронки")
+
+        # process_message обрабатывает сообщение и возвращает ответ в виде str
+        session["messages"].append(process_message(session))
 
     return render_template(
         "chat.html",
@@ -47,20 +51,22 @@ def chat():
 def form():
     form = StartForm()
     if request.method == "POST":
-        # print(form.photo.data.filename, secure_filename(form.photo.data.filename))
         if form.photo.data.filename:
             filename = form.photo.data.filename
             form.photo.data.save("uploads/" + filename)
             session["uploaded_data_file_path"] = os.path.join("./uploads/" + filename)
         else:
             session["uploaded_data_file_path"] = None
+
         session["description"] = form.description.data
         session["address"] = form.address.data
         session["url"] = url_for("chat")
         session["messages"] = []
         session.modified = True
-        # + запуск gpt
+
+        # + запуск чата
         return redirect("/chat")
+
     return render_template("start.html", form=form)
 
 

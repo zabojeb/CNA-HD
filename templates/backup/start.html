@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Start list</title>
+</head>
+
+<body>
+    <form action="/chat" target="_blank">
+        <input type="submit" value="Chat withput info" />
+    </form>
+    <form method="POST" enctype="multipart/form-data" action="/start">
+        {{ form.description.label }}<br>
+        {{ form.description(class="form-control", type="text") }}<br>
+
+        {{ form.address.label }}<br>
+        {{ form.address(class="form-control", type="text") }}<br>
+        {{ form.photo.label }}<br>
+        {{ form.photo(class="form-control", type="file") }}<br>
+
+        <p>{{ form.submit(type="submit")}}</p> 
+        <!-- <input type="submit" value="go to chat" />-->
+
+    </form>
+</body>
+
+</html>
+{% endblock %}
