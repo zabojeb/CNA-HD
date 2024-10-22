@@ -3,7 +3,10 @@ import os
 from werkzeug.utils import secure_filename
 
 from data.startform import StartForm
+import osmnx as ox
+import networkx as nx
 
+from geopy.geocoders import Nominatim
 # Импорт ML функций для инференса
 from ai.llm import process_message
 
@@ -15,7 +18,22 @@ UPLOAD_FOLDER = os.path.join("staticFiles", "uploads")
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 
 
-# Редирект на стартовую страницу
+def findplace(address):
+    locator = Nominatim(user_agent = "i2d")
+    location = locator.geocode(address)
+    tags = {'amenity': ['restaurant', 'pub', 'cafe'],
+        'building': 'hotel',
+        'tourism': 'hotel'}
+    if location:
+        gdf = ox.features.features_from_point((location.latitude, location.longitude), dist=500, tags=tags)
+        print(gdf['name'], gdf['tourism'], gdf['amenity'])
+        fig, ax = ox.plot_graph(gdf, show=False, close=False)
+        print(ax)
+        return (location.latitude, location.longitude)
+    else:
+        return address
+
+
 @app.route("/")
 def index():
     return redirect("/start")
@@ -26,6 +44,10 @@ def index():
 def chat():
     if "messages" not in session:
         session["messages"] = []
+    if "description" not in session:
+        session["description"] = ""
+    if "address" not in session:
+        session["address"] = ""
 
     if "uploaded_data_file_path" not in session:
         session["uploaded_data_file_path"] = None
@@ -44,6 +66,7 @@ def chat():
         "chat.html",
         photo=session["uploaded_data_file_path"],
         messages=session["messages"],
+        
     )
 
 
@@ -53,13 +76,15 @@ def form():
     if request.method == "POST":
         if form.photo.data.filename:
             filename = form.photo.data.filename
-            form.photo.data.save("uploads/" + filename)
-            session["uploaded_data_file_path"] = os.path.join("./uploads/" + filename)
+            form.photo.data.save("./static/" + filename)
+            session["uploaded_data_file_path"] = os.path.join(
+                url_for("static", filename=filename)
+            )
         else:
             session["uploaded_data_file_path"] = None
 
         session["description"] = form.description.data
-        session["address"] = form.address.data
+        session["address"] = findplace(form.address.data)
         session["url"] = url_for("chat")
         session["messages"] = []
         session.modified = True
