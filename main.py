@@ -7,8 +7,10 @@ import osmnx as ox
 import networkx as nx
 
 from geopy.geocoders import Nominatim
+
 # Импорт ML функций для инференса
 from ai.llm import process_message
+import geopandas as gpd
 
 DEBUG = True
 
@@ -19,19 +21,12 @@ app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 
 
 def findplace(address):
-    locator = Nominatim(user_agent = "i2d")
+    locator = Nominatim(user_agent="i2d")
     location = locator.geocode(address)
-    tags = {'amenity': ['restaurant', 'pub', 'cafe'],
-        'building': 'hotel',
-        'tourism': 'hotel'}
     if location:
-        gdf = ox.features.features_from_point((location.latitude, location.longitude), dist=500, tags=tags)
-        print(gdf['name'], gdf['tourism'], gdf['amenity'])
-        fig, ax = ox.plot_graph(gdf, show=False, close=False)
-        print(ax)
-        return (location.latitude, location.longitude)
+        return {"lat": location.latitude, "lon": location.longitude, "address": address}
     else:
-        return address
+        return {"address": address, "lat": None, "lon": None}
 
 
 @app.route("/")
@@ -66,7 +61,6 @@ def chat():
         "chat.html",
         photo=session["uploaded_data_file_path"],
         messages=session["messages"],
-        
     )
 
 
@@ -84,7 +78,12 @@ def form():
             session["uploaded_data_file_path"] = None
 
         session["description"] = form.description.data
-        session["address"] = findplace(form.address.data)
+
+        a = findplace(form.address.data)
+        session["address"] = a["address"]
+        session["lat"] = a["lat"]
+        session["lon"] = a["lon"]
+
         session["url"] = url_for("chat")
         session["messages"] = []
         session.modified = True
