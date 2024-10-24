@@ -1,3 +1,6 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
 from flask import *
 import os
 from werkzeug.utils import secure_filename
@@ -7,6 +10,7 @@ import osmnx as ox
 import networkx as nx
 
 from geopy.geocoders import Nominatim
+
 # Импорт ML функций для инференса
 from ai.llm import process_message
 
@@ -19,14 +23,18 @@ app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 
 
 def findplace(address):
-    locator = Nominatim(user_agent = "i2d")
+    locator = Nominatim(user_agent="i2d")
     location = locator.geocode(address)
-    tags = {'amenity': ['restaurant', 'pub', 'cafe'],
-        'building': 'hotel',
-        'tourism': 'hotel'}
+    tags = {
+        "amenity": ["restaurant", "pub", "cafe"],
+        "building": "hotel",
+        "tourism": "hotel",
+    }
     if location:
-        gdf = ox.features.features_from_point((location.latitude, location.longitude), dist=500, tags=tags)
-        print(gdf['name'], gdf['tourism'], gdf['amenity'])
+        gdf = ox.features.features_from_point(
+            (location.latitude, location.longitude), dist=500, tags=tags
+        )
+        print(gdf["name"], gdf["tourism"], gdf["amenity"])
         fig, ax = ox.plot_graph(gdf, show=False, close=False)
         print(ax)
         return (location.latitude, location.longitude)
@@ -66,7 +74,6 @@ def chat():
         "chat.html",
         photo=session["uploaded_data_file_path"],
         messages=session["messages"],
-        
     )
 
 
