@@ -1,3 +1,6 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
 from flask import *
 import os
 from werkzeug.utils import secure_filename
@@ -7,6 +10,7 @@ import osmnx as ox
 import networkx as nx
 
 from geopy.geocoders import Nominatim
+
 
 # Импорт ML функций для инференса
 from ai.llm import process_message
