@@ -15,9 +15,10 @@ def map(df):
         color_discrete_sequence=["blue"],
         zoom=15,
     )
-    fig.update_layout(map_style="open-street-map")
+    fig.update_layout(map_style="outdoors")
     fig.update_layout(margin={"r": 0, "t": 0, "l": 0, "b": 0})
-    fig.show()
+    # fig.show()
+    return fig
 
 
 def plot_nearby_places(address, distance=500):
@@ -28,7 +29,7 @@ def plot_nearby_places(address, distance=500):
     location = geolocator.geocode(address)
     if location is None:
         print("Не удалось найти адрес.")
-        return
+        return None
 
     # Получаем координаты
     latitude = location.latitude
@@ -63,7 +64,7 @@ def plot_nearby_places(address, distance=500):
     n_p["lat"] = data_lat
     n_p = n_p.dropna()
     # print(n_p)
-    map(n_p)
+    return map(n_p)
 
 
-# plot_nearby_places("Россия, Москва, Отель Эден")
+#plot_nearby_places("Россия, Москва, Отель Эден")

@@ -10,8 +10,8 @@ import osmnx as ox
 import networkx as nx
 
 from geopy.geocoders import Nominatim
-
-
+import plotly
+from map import plot_nearby_places 
 # Импорт ML функций для инференса
 from ai.llm import process_message
 import geopandas as gpd
@@ -60,12 +60,26 @@ def chat():
 
         # process_message обрабатывает сообщение и возвращает ответ в виде str
         session["messages"].append(process_message(session))
-
+    if session["address"]:
+        session["map"] = plot_nearby_places(session["address"])
+        #print(plotly.offline.plot(session["map"], include_plotlyjs=False, output_type='div'))
+        if session["map"]:
+            session["map"] = session["map"]
+            return render_template(
+                "chat.html",
+                photo=session["uploaded_data_file_path"],
+                messages=session["messages"],
+                map=True
+            )
+        else:
+            session["map"] = None
     return render_template(
-        "chat.html",
-        photo=session["uploaded_data_file_path"],
-        messages=session["messages"],
-    )
+            "chat.html",
+            photo=session["uploaded_data_file_path"],
+            messages=session["messages"],
+            map=False
+        )
+            
 
 
 @app.route("/start", methods=["GET", "POST"])
