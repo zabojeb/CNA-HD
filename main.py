@@ -26,7 +26,7 @@ app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 
 
 def findplace(address):
-    locator = Nominatim(user_agent="i2d")
+    locator = Nominatim(user_agent="i2dd")
     location = locator.geocode(address)
     if location:
         return {"lat": location.latitude, "lon": location.longitude, "address": address}
@@ -48,7 +48,8 @@ def chat():
         session["description"] = ""
     if "address" not in session:
         session["address"] = ""
-
+    if "ai_messages" not in session:
+        session["ai_messages"] = []
     if "uploaded_data_file_path" not in session:
         session["uploaded_data_file_path"] = None
 
@@ -60,7 +61,7 @@ def chat():
         session["messages"].append(message)
 
         # process_message обрабатывает сообщение и возвращает ответ в виде str
-        session["messages"].append(process_message(session))
+        session["ai_messages"].append(process_message(session))
     if session["address"]:
         # session["map"] = plot_nearby_places(session["address"])
         # print(
@@ -75,6 +76,7 @@ def chat():
                 photo=session["uploaded_data_file_path"],
                 messages=session["messages"],
                 map=False,
+                ai_messages=session["ai_messages"],
             )
             #             {% if map %}
             # <p>{{ session["map"].to_html(full_html=False)|safe }}</p>
@@ -104,13 +106,16 @@ def form():
 
         session["description"] = form.description.data
 
-        a = findplace(form.address.data)
-        session["address"] = a["address"]
-        session["lat"] = a["lat"]
-        session["lon"] = a["lon"]
-
+        # a = findplace(form.address.data)
+        #session["address"] = a["address"]
+        session["address"] = form.address.data
+        # session["lat"] = a["lat"]
+        # session["lon"] = a["lon"]
+        session["lat"] = None
+        session["lon"] = None
         session["url"] = url_for("chat")
         session["messages"] = []
+        session["ai_messages"] = []
         session.modified = True
 
         # + запуск чата
