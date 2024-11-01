@@ -42,13 +42,18 @@ def index():
 @app.route("/chat", methods=["GET", "POST"])
 def chat():
     if "messages" not in session:
-        session["messages"] = []
+        session["messages"] = [{"role": "assistant",
+                         "content": [
+                             {
+                                 "type": "text",
+                                 "text": "Привет! Я - Оскар, ассистент от МТС, который поможет Вам составить идеальное описание для отеля. Начнём?"
+                             }
+                             ]
+                         }]
     if "description" not in session:
-        session["description"] = ""
+        session["description"] = "Нет описания"
     if "address" not in session:
-        session["address"] = ""
-    if "ai_messages" not in session:
-        session["ai_messages"] = []
+        session["address"] = "Нет адреса"
     if "uploaded_data_file_path" not in session:
         session["uploaded_data_file_path"] = None
 
@@ -57,10 +62,26 @@ def chat():
 
     if request.method == "POST":
         message = request.form["message"]
-        session["messages"].append(message)
+        session["messages"].append({"role": "user",
+                         "content": [
+                             {
+                                 "type": "text",
+                                 "text": str(message)
+                             }
+                             ]
+                         })
 
         # process_message обрабатывает сообщение и возвращает ответ в виде str
-        session["ai_messages"].append(process_message(session))
+        assistant_message = process_message(session)
+
+        session["messages"].append({"role": "assistant",
+                        "content": [
+                            {
+                                "type": "text",
+                                "text": assistant_message
+                            }
+                            ]
+                        })
     if session["address"]:
         # session["map"] = plot_nearby_places(session["address"])
         # print(
@@ -75,7 +96,6 @@ def chat():
                 photo=session["uploaded_data_file_path"],
                 messages=session["messages"],
                 map=False,
-                ai_messages=session["ai_messages"],
             )
             #             {% if map %}
             # <p>{{ session["map"].to_html(full_html=False)|safe }}</p>
@@ -114,7 +134,6 @@ def form():
         session["lon"] = None
         session["url"] = url_for("chat")
         session["messages"] = []
-        session["ai_messages"] = []
         session.modified = True
 
         # + запуск чата
@@ -130,7 +149,7 @@ def sendmessage():
 
 @app.errorhandler(404)
 def page_not_found(e):
-    return redirect("/start")
+    return redirect("/")
 
 
 @app.route("/deletesession")

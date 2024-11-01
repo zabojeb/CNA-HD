@@ -1,32 +1,11 @@
 from openai import OpenAI
-from os import getenv
+import time
 
-CHAT_MODEL = "nousresearch/hermes-3-llama-3.1-405b:free"
-OPENROUTER_API_KEY = "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"
+CHAT_MODEL = "openai/gpt-4o-mini"
+OPENROUTER_API_KEY = "SECRET"
 
 def process_message(session):
     messages = session["messages"]
-
-    uploaded_data = session["uploaded_data_file_path"]
-    description = session["description"]
-    address = session["address"]
-
-    last_message = messages[-1]
-
-    return f"Описание: {description}\nАдрес: {address}\nВаше сообщение: {last_message}"
-
-def process_message2(session):
-    return "ответ нейронки типа"
-    messages = []
-    for message in session["messages"]:
-        messages.append({"role": "user",
-                         "content": [
-                             {
-                                 "type": "text",
-                                 "text": message
-                             }
-                             ]
-                         })
 
     uploaded_data = session["uploaded_data_file_path"]
     description = session["description"]
@@ -48,10 +27,10 @@ def process_message2(session):
           2. Услуги: услуги, которые может предоставить отель - WiFi, кондиционер, завтраки, бассейн, спортзал и тд
           3. Особенности
           4. Фотографии отеля
+          5. Другое
           
-          Основная информация об отеле, описание которого тебе нужно сгенерировать:
-          1. Геолокация/адрес: {address}
-          2. Описание: {description}
+          Стартовое описание отеля, предоставленное пользователем:
+          {description}
           """
         }
       ]
@@ -68,4 +47,8 @@ def process_message2(session):
     messages=[system_message] + messages
     )
 
+    time.sleep(1)
+    
+    print(completion)
+    
     return completion.choices[0].message.content
