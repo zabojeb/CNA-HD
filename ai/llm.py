@@ -2,9 +2,9 @@ from openai import OpenAI
 from os import getenv
 
 CHAT_MODEL = "nousresearch/hermes-3-llama-3.1-405b:free"
-OPENROUTER_API_KEY = "SECRET_KEY"
+OPENROUTER_API_KEY = "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"
 
-def process_message_debug(session):
+def process_message(session):
     messages = session["messages"]
 
     uploaded_data = session["uploaded_data_file_path"]
@@ -15,7 +15,8 @@ def process_message_debug(session):
 
     return f"Описание: {description}\nАдрес: {address}\nВаше сообщение: {last_message}"
 
-def process_message(session):
+def process_message2(session):
+    return "ответ нейронки типа"
     messages = []
     for message in session["messages"]:
         messages.append({"role": "user",

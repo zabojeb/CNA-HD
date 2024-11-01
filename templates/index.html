@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Главная страница</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            color: #333;
+            overflow-x: hidden;
+        }
+
+        /* Фоновое изображение и центрирование контента */
+        .hero-section {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: url('https://source.unsplash.com/1600x900/?technology,ai') no-repeat center center/cover;
+            text-align: center;
+            color: #fff;
+            position: relative;
+        }
+
+        /* Темный полупрозрачный фон для текста */
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1;
+        }
+
+        /* Основное содержимое */
+        .content {
+            z-index: 2;
+            max-width: 700px;
+            padding: 20px;
+            animation: fadeIn 2s ease-in-out;
+        }
+
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            animation: slideInDown 1s ease-in-out;
+        }
+
+        p {
+            font-size: 1.2rem;
+            line-height: 1.6;
+            margin-bottom: 30px;
+            animation: fadeIn 1.5s ease-in-out;
+        }
+
+        /* Кнопка */
+        .start-button {
+            display: inline-block;
+            padding: 15px 30px;
+            font-size: 1.2rem;
+            color: #fff;
+            background-color: #ff0000;
+            border: none;
+            border-radius: 25px;
+            text-decoration: none;
+            cursor: pointer;
+            transition: transform 0.3s, background-color 0.3s;
+            animation: bounceIn 1.5s ease-in-out;
+        }
+
+        .start-button:hover {
+            background-color: #ff4d4d;
+            transform: translateY(-3px);
+        }
+
+        /* Анимации */
+        @keyframes fadeIn {
+            0% {
+                opacity: 0;
+            }
+            100% {
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideInDown {
+            0% {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            100% {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes bounceIn {
+            0% {
+                transform: scale(0.5);
+                opacity: 0;
+            }
+            80% {
+                transform: scale(1.05);
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <section class="hero-section">
+        <div class="overlay"></div>
+        <div class="content">
+            <h1>Генерируйте волшебные описания отелей с помощником!</h1>
+            <p>Это инновационная платформа, созданная для общения с ИИ-помощником для генерации описаний отелей от МТС и ФКН ВШЭ. 
+            Откройте для себя возможности нового уровня коммуникации и получите уникальное описание для вашего отеля прямо здесь и сейчас.</p>
+            <a href="/start" class="start-button">Начать</a>
+        </div>
+    </section>
+</body>
+
+</html>

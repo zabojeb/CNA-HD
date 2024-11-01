@@ -36,8 +36,7 @@ def findplace(address):
 
 @app.route("/")
 def index():
-    return redirect("/start")
-
+    return render_template("index.html")
 
 # Редирект на чат
 @app.route("/chat", methods=["GET", "POST"])
