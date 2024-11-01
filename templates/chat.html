@@ -62,9 +62,7 @@
             <p>{{ session["description"] }}</p>
             <p>{{ session["address"] }}</p>
             <p>координаты -- {{ session["lat"] }} {{ session["lon"] }}</p>
-            {% if map %}
-            <p>{{ session["map"].to_html(full_html=False)|safe }}</p>
-            {% endif %}
+
             <p><img src="{{ photo }}" alt="Вы не добавили фото" width="100" height="100"></p>
         </div>
         <div class="chat-messages">
@@ -81,7 +79,12 @@
             </form>
         </div>
     </div>
+<div>
+    {% for item in ai_messages %}
+          <p>{{ item }}</p>
+    {% endfor %}
 
+</div>
 
 </body>
 </html>

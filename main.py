@@ -11,7 +11,8 @@ import networkx as nx
 
 from geopy.geocoders import Nominatim
 import plotly
-from map import plot_nearby_places 
+from map import plot_nearby_places
+
 # Импорт ML функций для инференса
 from ai.llm import process_message
 import geopandas as gpd
@@ -25,7 +26,7 @@ app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 
 
 def findplace(address):
-    locator = Nominatim(user_agent="i2d")
+    locator = Nominatim(user_agent="i2dd")
     location = locator.geocode(address)
     if location:
         return {"lat": location.latitude, "lon": location.longitude, "address": address}
@@ -47,7 +48,8 @@ def chat():
         session["description"] = ""
     if "address" not in session:
         session["address"] = ""
-
+    if "ai_messages" not in session:
+        session["ai_messages"] = []
     if "uploaded_data_file_path" not in session:
         session["uploaded_data_file_path"] = None
 
@@ -59,27 +61,34 @@ def chat():
         session["messages"].append(message)
 
         # process_message обрабатывает сообщение и возвращает ответ в виде str
-        session["messages"].append(process_message(session))
+        session["ai_messages"].append(process_message(session))
     if session["address"]:
-        session["map"] = plot_nearby_places(session["address"])
-        #print(plotly.offline.plot(session["map"], include_plotlyjs=False, output_type='div'))
-        if session["map"]:
-            session["map"] = session["map"]
+        # session["map"] = plot_nearby_places(session["address"])
+        # print(
+        #     plotly.offline.plot(
+        #         session["map"], include_plotlyjs=False, output_type="div"
+        #     )
+        # )
+        # if session["map"]:
+            # session["map"] = session["map"].to_html(full_html=False)
             return render_template(
                 "chat.html",
                 photo=session["uploaded_data_file_path"],
                 messages=session["messages"],
-                map=True
+                map=False,
+                ai_messages=session["ai_messages"],
             )
-        else:
-            session["map"] = None
-    return render_template(
-            "chat.html",
-            photo=session["uploaded_data_file_path"],
-            messages=session["messages"],
-            map=False
-        )
-            
+            #             {% if map %}
+            # <p>{{ session["map"].to_html(full_html=False)|safe }}</p>
+            # {% endif %}
+        # else:
+        #     session["map"] = None
+    # return render_template(
+    #     "chat.html",
+    #     photo=session["uploaded_data_file_path"],
+    #     messages=session["messages"],
+    #     map=False,
+    # )
 
 
 @app.route("/start", methods=["GET", "POST"])
@@ -97,13 +106,16 @@ def form():
 
         session["description"] = form.description.data
 
-        a = findplace(form.address.data)
-        session["address"] = a["address"]
-        session["lat"] = a["lat"]
-        session["lon"] = a["lon"]
-
+        # a = findplace(form.address.data)
+        #session["address"] = a["address"]
+        session["address"] = form.address.data
+        # session["lat"] = a["lat"]
+        # session["lon"] = a["lon"]
+        session["lat"] = None
+        session["lon"] = None
         session["url"] = url_for("chat")
         session["messages"] = []
+        session["ai_messages"] = []
         session.modified = True
 
         # + запуск чата

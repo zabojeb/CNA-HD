@@ -2,7 +2,7 @@ from openai import OpenAI
 from os import getenv
 
 CHAT_MODEL = "nousresearch/hermes-3-llama-3.1-405b:free"
-OPENROUTER_API_KEY = "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"
+OPENROUTER_API_KEY = "SECRET_KEY"
 
 def process_message_debug(session):
     messages = session["messages"]
