@@ -38,50 +38,49 @@ def findplace(address):
 def index():
     return render_template("index.html")
 
+
 # Редирект на чат
 @app.route("/chat", methods=["GET", "POST"])
 def chat():
     if "messages" not in session:
-        session["messages"] = [{"role": "assistant",
-                         "content": [
-                             {
-                                 "type": "text",
-                                 "text": "Привет! Я - Оскар, ассистент от МТС, который поможет Вам составить идеальное описание для отеля. Начнём?"
-                             }
-                             ]
-                         }]
+        session["messages"] = [
+            {
+                "role": "assistant",
+                "content": [
+                    {
+                        "type": "text",
+                        "text": "Привет! Я - Оскар, ассистент от МТС, который поможет Вам составить идеальное описание для отеля. Начнём?",
+                    }
+                ],
+            }
+        ]
     if "description" not in session:
         session["description"] = "Нет описания"
     if "address" not in session:
         session["address"] = "Нет адреса"
     if "uploaded_data_file_path" not in session:
         session["uploaded_data_file_path"] = None
+    if "ai_messages" not in session:
+        session["ai_messages"] = []  # список сообщений от ассистента
 
     session.modified = True
     message = "Сообщение"
 
     if request.method == "POST":
         message = request.form["message"]
-        session["messages"].append({"role": "user",
-                         "content": [
-                             {
-                                 "type": "text",
-                                 "text": str(message)
-                             }
-                             ]
-                         })
+        session["messages"].append(
+            {"role": "user", "content": [{"type": "text", "text": str(message)}]}
+        )
 
         # process_message обрабатывает сообщение и возвращает ответ в виде str
         assistant_message = process_message(session)
 
-        session["messages"].append({"role": "assistant",
-                        "content": [
-                            {
-                                "type": "text",
-                                "text": assistant_message
-                            }
-                            ]
-                        })
+        session["messages"].append(
+            {
+                "role": "assistant",
+                "content": [{"type": "text", "text": assistant_message}],
+            }
+        )
     if session["address"]:
         # session["map"] = plot_nearby_places(session["address"])
         # print(
@@ -90,18 +89,18 @@ def chat():
         #     )
         # )
         # if session["map"]:
-            # session["map"] = session["map"].to_html(full_html=False)
-            return render_template(
-                "chat.html",
-                photo=session["uploaded_data_file_path"],
-                messages=session["messages"],
-                map=False,
-            )
-            #             {% if map %}
-            # <p>{{ session["map"].to_html(full_html=False)|safe }}</p>
-            # {% endif %}
-        # else:
-        #     session["map"] = None
+        # session["map"] = session["map"].to_html(full_html=False)
+        return render_template(
+            "chat.html",
+            photo=session["uploaded_data_file_path"],
+            messages=session["messages"],
+            map=False,
+        )
+        #             {% if map %}
+        # <p>{{ session["map"].to_html(full_html=False)|safe }}</p>
+        # {% endif %}
+    # else:
+    #     session["map"] = None
     # return render_template(
     #     "chat.html",
     #     photo=session["uploaded_data_file_path"],
@@ -126,14 +125,25 @@ def form():
         session["description"] = form.description.data
 
         # a = findplace(form.address.data)
-        #session["address"] = a["address"]
+        # session["address"] = a["address"]
         session["address"] = form.address.data
         # session["lat"] = a["lat"]
         # session["lon"] = a["lon"]
         session["lat"] = None
         session["lon"] = None
         session["url"] = url_for("chat")
-        session["messages"] = []
+        session["messages"] = [
+            {
+                "role": "assistant",
+                "content": [
+                    {
+                        "type": "text",
+                        "text": "Привет! Я - Оскар, ассистент от МТС, который поможет Вам составить идеальное описание для отеля. Начнём?",
+                    }
+                ],
+            }
+        ]
+        session["ai_messages"] = []
         session.modified = True
 
         # + запуск чата

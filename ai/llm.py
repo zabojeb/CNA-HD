@@ -2,7 +2,7 @@ from openai import OpenAI
 import time
 
 CHAT_MODEL = "openai/gpt-4o-mini"
-OPENROUTER_API_KEY = "SECRET"
+OPENROUTER_API_KEY = "Secret"
 
 def process_message(session):
     messages = session["messages"]
