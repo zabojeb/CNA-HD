@@ -165,6 +165,7 @@
                 {% endif %}
             </div>
         </div>
+           
         <div class="chat-messages">
             {% for item in messages %}
                 {% if item["role"] == "user" %}
@@ -180,6 +181,18 @@
                 <input type="text" name="message" placeholder="Введите сообщение" required>
                 <input type="submit" value="Отправить">
             </form>
+        </div>
+    </div>
+    <div class="description-container">
+        <div class="description-header">
+            <div class="description-header-title">Полученные описания</div>
+
+            </div>
+        
+        <div class="description-content">
+            {% for item in ai_messages %}
+                <p>{{ item }}</p>
+            {% endfor %}
         </div>
     </div>
 </body>

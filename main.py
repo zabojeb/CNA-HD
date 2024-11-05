@@ -61,7 +61,7 @@ def chat():
     if "uploaded_data_file_path" not in session:
         session["uploaded_data_file_path"] = None
     if "ai_messages" not in session:
-        session["ai_messages"] = []  # список сообщений от ассистента
+       session["ai_messages"] = [] # список сообщений от ассистента --------------------<<<<<< ДОБАВИТЬ НАДО СЮДА ТОЖЕ
 
     session.modified = True
     message = "Сообщение"
@@ -81,6 +81,9 @@ def chat():
                 "content": [{"type": "text", "text": assistant_message}],
             }
         )
+        flag = True  # флаг для проверки того что сообщение асистента это описание
+        if flag:
+            session["ai_messages"].append(assistant_message)
     if session["address"]:
         # session["map"] = plot_nearby_places(session["address"])
         # print(
@@ -95,6 +98,7 @@ def chat():
             photo=session["uploaded_data_file_path"],
             messages=session["messages"],
             map=False,
+            ai_messages=session["ai_messages"],
         )
         #             {% if map %}
         # <p>{{ session["map"].to_html(full_html=False)|safe }}</p>
@@ -132,6 +136,7 @@ def form():
         session["lat"] = None
         session["lon"] = None
         session["url"] = url_for("chat")
+        session["ai_messages"] = [] # список сообщений от ассистента --------------------<<<<<< ДОБАВИТЬ НАДО СЮДА ТОЖЕ
         session["messages"] = [
             {
                 "role": "assistant",
