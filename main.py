@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+import json
+
 from flask import *
 import os
 from werkzeug.utils import secure_filename
@@ -14,7 +16,7 @@ import plotly
 from map import plot_nearby_places
 
 # Импорт ML функций для инференса
-from ai.llm import process_message
+from ai.llm import process_message, generate_description
 import geopandas as gpd
 
 DEBUG = True
@@ -61,7 +63,7 @@ def chat():
     if "uploaded_data_file_path" not in session:
         session["uploaded_data_file_path"] = None
     if "ai_messages" not in session:
-       session["ai_messages"] = [] # список сообщений от ассистента --------------------<<<<<< ДОБАВИТЬ НАДО СЮДА ТОЖЕ
+       session["ai_messages"] = [] + [session["description"]] # список сообщений от ассистента --------------------<<<<<< ДОБАВИТЬ НАДО СЮДА ТОЖЕ
 
     session.modified = True
     message = "Сообщение"
@@ -73,17 +75,23 @@ def chat():
         )
 
         # process_message обрабатывает сообщение и возвращает ответ в виде str
-        assistant_message = process_message(session)
+        response = process_message(session)
+        
+        if response.choices[0].message.tool_calls:
+            info = json.loads(response.choices[0].message.tool_calls[0].function.arguments)['info']
+
+            generated_description = generate_description(info)
+            session['ai_messages'].append(generated_description)
+
+            assistant_message = "Описание сгенерировано!"
+        else:
+            assistant_message = response.choices[0].message.content
 
         session["messages"].append(
             {
                 "role": "assistant",
                 "content": [{"type": "text", "text": assistant_message}],
-            }
-        )
-        flag = True  # флаг для проверки того что сообщение асистента это описание
-        if flag:
-            session["ai_messages"].append(assistant_message)
+            })
     if session["address"]:
         # session["map"] = plot_nearby_places(session["address"])
         # print(
@@ -111,7 +119,6 @@ def chat():
     #     messages=session["messages"],
     #     map=False,
     # )
-
 
 @app.route("/start", methods=["GET", "POST"])
 def form():

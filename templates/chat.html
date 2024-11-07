@@ -16,11 +16,21 @@
             margin: 0;
             padding: 20px;
             background-color: #e9ecef;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+        .main-container {
+            display: flex;
+            gap: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
         }
 
         .chat-container {
+            flex: 1;
             max-width: 600px;
-            margin: 0 auto;
             background-color: #fff;
             border-radius: 15px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
@@ -71,7 +81,7 @@
             gap: 10px;
         }
 
-        .chat-message {
+       .chat-message {
             max-width: 70%;
             padding: 12px 18px;
             border-radius: 12px;
@@ -146,53 +156,88 @@
             background-color: #ff3a1e;
         }
 
-        .label {
+        .description-container {
+            max-width: 600px;
+            background-color: #fff;
+border-radius: 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+            padding: 20px;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .description-header {
+            background: linear-gradient(135deg, #4e54c8, #8f94fb);
+            color: #fff;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .description-header-title {
+            font-size: 20px;
             font-weight: bold;
+        }
+
+        .description-content {
+            margin-top: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .description-item {
+            background-color: #f6f6f6;
+            border-left: 4px solid #4e54c8;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 15px;
+            line-height: 1.4;
         }
     </style>
 </head>
 
 <body>
-    <div class="chat-container">
-        <div class="chat-header">
-            <div class="chat-header-title">Информация об отеле</div>
-            <div class="chat-info">
-                <p><span class="label">Описание:</span> {{ session["description"] }}</p>
-                <p><span class="label">Адрес:</span> {{ session["address"] }}</p>
-                <p><span class="label">Координаты:</span> {{ session["lat"] }}, {{ session["lon"] }}</p>
-                {% if photo %}
-                    <p><img src="{{ photo }}" alt="Фото" width="150" height="150"></p>
-                {% endif %}
+    <div class="main-container">
+        <div class="chat-container">
+            <div class="chat-header">
+                <div class="chat-header-title">Информация об отеле</div>
+                <div class="chat-info">
+                    <p><span class="label">Описание:</span> {{ session["description"] }}</p>
+                    <p><span class="label">Адрес:</span> {{ session["address"] }}</p>
+                    <p><span class="label">Координаты:</span> {{ session["lat"] }}, {{ session["lon"] }}</p>
+                    {% if photo %}
+                        <p><img src="{{ photo }}" alt="Фото" width="150" height="150"></p>
+                    {% endif %}
+                </div>
             </div>
-        </div>
-           
-        <div class="chat-messages">
-            {% for item in messages %}
-                {% if item["role"] == "user" %}
-                    <div class="chat-message user-message">{{ item["content"][0]["text"] }}</div>
-                {% endif %}
-                {% if item["role"] == "assistant" %}
-                    <div class="chat-message ai-message">{{ item["content"][0]["text"] }}</div>
-                {% endif %}
-            {% endfor %}
-        </div>
-        <div class="chat-input">
-            <form action="" method="POST">
-                <input type="text" name="message" placeholder="Введите сообщение" required>
-                <input type="submit" value="Отправить">
-            </form>
-        </div>
-    </div>
-    <div class="description-container">
-        <div class="description-header">
-            <div class="description-header-title">Полученные описания</div>
 
+            <div class="chat-messages">
+                {% for item in messages %}
+                    {% if item["role"] == "user" %}
+                        <div class="chat-message user-message">{{ item["content"][0]["text"] }}</div>
+                    {% elif item["role"] == "assistant" %}
+                        <div class="chat-message ai-message">{{ item["content"][0]["text"] }}</div>
+                    {% endif %}
+                {% endfor %}
             </div>
-        
-        <div class="description-content">
-            {% for item in ai_messages %}
-                <p>{{ item }}</p>
-            {% endfor %}
+
+            <div class="chat-input">
+                <form action="" method="POST">
+                    <input type="text" name="message" placeholder="Введите сообщение" required>
+                    <input type="submit" value="Отправить">
+                </form>
+            </div>
+        </div>
+
+        <div class="description-container">
+            <div class="description-header">
+                <div class="description-header-title">Полученные описания</div>
+            </div>
+            <div class="description-content">
+                {% for item in ai_messages %}
+                    <div class="description-item">{{ item }}</div>
+                {% endfor %}
+            </div>
         </div>
     </div>
 </body>
