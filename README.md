@@ -2,6 +2,11 @@
 ### Contextual Neural Assistant for Hotel Description
 
 ---
+## Навигация по файлам
+- [main.py](https://github.com/zabojeb/CNA-HD/blob/main/main.py) - это главный файл, который координирует работу всех процессов, описывает эндпоинты и поведение сайта
+- [ai/llm.py](https://github.com/zabojeb/CNA-HD/blob/main/ai/llm.py) и [ai/main.py](https://github.com/zabojeb/CNA-HD/blob/main/ai/main.py) - это файлы, в которых происходит взаимодействие с нейросетями, там есть функции для получения описания и для обработки информации от пользователя
+- в папке [notebooks](https://github.com/zabojeb/CNA-HD/tree/main/notebooks) можно увидеть наши наработки по дополнительным функциям. Наиболее информативны файлы [map_result.ipynb](https://github.com/zabojeb/CNA-HD/blob/main/notebooks/map_result.ipynb) - это файл с наиболее рабочими наработками по картам и анализу геолокации (менее удачные варианты показаны в файлах [testcords.ipynb](https://github.com/zabojeb/CNA-HD/blob/main/notebooks/testcords.ipynb) и [testmap2.ipynb](https://github.com/zabojeb/CNA-HD/blob/main/notebooks/testmap2.ipynb)); [parser.ipynb](https://github.com/zabojeb/CNA-HD/blob/main/notebooks/parser.ipynb) -это файл с имеющимися парсерами; [sentiment_analysis.ipynb](https://github.com/zabojeb/CNA-HD/blob/main/notebooks/sentiment_analysis.ipynb) - это файл, в котором представлен анализ отзывов
+
 
 ## Обзор
 CNA-HD - это инструмент, использующий искусственный интеллект для автоматизации процесса создания всесторонних и персонализированных описаний отелей. Система использует передовые модели обработки естественного языка, методы компьютерного зрения и анализ контекстуальных данных, чтобы генерировать информативные и привлекательные описания отелей, которые учитывают потребности потенциальных клиентов.
