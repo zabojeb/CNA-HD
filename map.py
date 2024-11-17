@@ -6,65 +6,36 @@ from geopy.geocoders import Nominatim
 import matplotlib.pyplot as plt
 
 
-def map(df):
-    fig = px.scatter_map(
-        df,
-        lat="lat",
-        lon="lon",
-        hover_name="name",
-        color_discrete_sequence=["blue"],
-        zoom=15,
-    )
-    fig.update_layout(map_style="outdoors")
-    fig.update_layout(margin={"r": 0, "t": 0, "l": 0, "b": 0})
-    # fig.show()
-    return fig
+def make_href_for_hotel(hotel):
+    pt = f"{hotel[1]},{hotel[0]}"
+    href = f'https://yandex.ru/maps/?ll={hotel[1]},{hotel[0]}&text=кафе&pt={pt}&z=16&l=map'
+    return href
 
 
-def plot_nearby_places(address, distance=500):
+def lat_and_lon(cords, distance=500):
     # Инициализируем геоколлектор
     geolocator = Nominatim(user_agent="i2d")
+    try:
+        print(cords,4)
+        latitude, longitude = list(map(float,cords.split(', ')))
+    
 
-    # Получаем координаты по адресу
-    location = geolocator.geocode(address)
-    if location is None:
-        print("Не удалось найти адрес.")
+    
+        # Находим заведения поблизости
+    
+    
+        print((latitude, longitude))
+        tags = {'amenity': True}
+        nearby_places = ox.features.features_from_point((latitude, longitude), dist=distance, tags=tags)
+        #print(nearby_places)
+        if nearby_places.empty:
+            return None
+        
+        return (latitude, longitude)
+    except Exception as e:
+        print(e)
         return None
-
-    # Получаем координаты
-    latitude = location.latitude
-    longitude = location.longitude
-
-    # Создаем точку на карте
-    point = gpd.GeoDataFrame(
-        geometry=gpd.points_from_xy([longitude], [latitude]), crs="EPSG:4326"
-    )
-
-    # Находим заведения поблизости
-    tags = {"amenity": True}
-    nearby_places = ox.features.features_from_point(
-        (latitude, longitude), dist=distance, tags=tags
-    )
-    data_lon = []
-    data_lat = []
-    nearby_places = nearby_places[["name", "geometry"]]
-    n_p = nearby_places.copy(deep=True)
-    indexes_to_del = []
-    for i, r in nearby_places.iterrows():
-        # print((r['geometry']))
-        if str(r["geometry"]).startswith("POINT"):
-            x, y = r["geometry"].x, r["geometry"].y
-            data_lon.append(x)
-            data_lat.append(y)
-        else:
-            indexes_to_del.append(i)
-
-    n_p = nearby_places.drop(indexes_to_del)
-    n_p["lon"] = data_lon
-    n_p["lat"] = data_lat
-    n_p = n_p.dropna()
-    # print(n_p)
-    return map(n_p)
-
-
+        
+    
 #plot_nearby_places("Россия, Москва, Отель Эден")
+#59.148141, 37.942938

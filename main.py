@@ -4,20 +4,17 @@
 import json
 
 from flask import *
+from flask import session
 import os
 from werkzeug.utils import secure_filename
 
 from data.startform import StartForm
-import osmnx as ox
-import networkx as nx
 
-from geopy.geocoders import Nominatim
-import plotly
-from map import plot_nearby_places
+from map import lat_and_lon,make_href_for_hotel
 
 # Импорт ML функций для инференса
 from ai.llm import process_message, generate_description
-import geopandas as gpd
+
 
 DEBUG = True
 
@@ -27,13 +24,6 @@ UPLOAD_FOLDER = os.path.join("staticFiles", "uploads")
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 
 
-def findplace(address):
-    locator = Nominatim(user_agent="i2dd")
-    location = locator.geocode(address)
-    if location:
-        return {"lat": location.latitude, "lon": location.longitude, "address": address}
-    else:
-        return {"address": address, "lat": None, "lon": None}
 
 
 @app.route("/")
@@ -44,6 +34,8 @@ def index():
 # Редирект на чат
 @app.route("/chat", methods=["GET", "POST"])
 def chat():
+    
+    
     if "messages" not in session:
         session["messages"] = [
             {
@@ -58,6 +50,10 @@ def chat():
         ]
     if "description" not in session:
         session["description"] = "Нет описания"
+    if "lat" not in session:
+        session["lat"] = None
+    if "lon" not in session:
+        session["lon"] = None
     if "address" not in session:
         session["address"] = "Нет адреса"
     if "uploaded_data_file_path" not in session:
@@ -92,20 +88,22 @@ def chat():
                 "role": "assistant",
                 "content": [{"type": "text", "text": assistant_message}],
             })
-    if session["address"]:
-        # session["map"] = plot_nearby_places(session["address"])
-        # print(
-        #     plotly.offline.plot(
-        #         session["map"], include_plotlyjs=False, output_type="div"
-        #     )
-        # )
-        # if session["map"]:
-        # session["map"] = session["map"].to_html(full_html=False)
+    if session["lat"] and session["lon"]:
+        session["map"] = make_href_for_hotel((session["lat"], session["lon"]))
+        print(session["map"], "Получили ссылку на карту")
         return render_template(
             "chat.html",
             photo=session["uploaded_data_file_path"],
             messages=session["messages"],
-            map=False,
+            map=session["map"],
+            ai_messages=session["ai_messages"],
+        )
+    else:
+               return render_template(
+            "chat.html",
+            photo=session["uploaded_data_file_path"],
+            messages=session["messages"],
+            map=None,
             ai_messages=session["ai_messages"],
         )
         #             {% if map %}
@@ -138,12 +136,17 @@ def form():
         # a = findplace(form.address.data)
         # session["address"] = a["address"]
         session["address"] = form.address.data
-        # session["lat"] = a["lat"]
-        # session["lon"] = a["lon"]
-        session["lat"] = None
-        session["lon"] = None
+        lat_and_lon_res = lat_and_lon(form.address.data)
+        print(lat_and_lon_res, "Получили координаты")
+        if lat_and_lon_res:
+            session["lat"] = lat_and_lon_res[0]
+            session["lon"] = lat_and_lon_res[1]
+            
+        else:
+            session["lat"] = None
+            session["lon"] = None
         session["url"] = url_for("chat")
-        session["ai_messages"] = [] # список сообщений от ассистента --------------------<<<<<< ДОБАВИТЬ НАДО СЮДА ТОЖЕ
+        session["ai_messages"] = [] 
         session["messages"] = [
             {
                 "role": "assistant",

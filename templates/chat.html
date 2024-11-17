@@ -205,6 +205,10 @@ border-radius: 15px;
                     <p><span class="label">Описание:</span> {{ session["description"] }}</p>
                     <p><span class="label">Адрес:</span> {{ session["address"] }}</p>
                     <p><span class="label">Координаты:</span> {{ session["lat"] }}, {{ session["lon"] }}</p>
+                    {% if map %}
+                    <a href="{{ map }}" target="_blank">Результат</a>
+                    {% endif %}
+
                     {% if photo %}
                         <p><img src="{{ photo }}" alt="Фото" width="150" height="150"></p>
                     {% endif %}

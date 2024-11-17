@@ -125,7 +125,10 @@
                 {{ form.description.label }}
                 {{ form.description(class="form-control", type="text") }}
             </div>
+            <a>Координаты задаются в виде [широта, долгота] (через запятую, в градусах с десятичной дробной частью после точки). Например, 55.777044, 37.555554.</a>    
+            <a>Координаты можно найти <a href="https://yandex.ru/maps/" target="_blank">тут</a></a>
             <div class="form-group">
+
                 {{ form.address.label }}
                 {{ form.address(class="form-control", type="text") }}
             </div>
