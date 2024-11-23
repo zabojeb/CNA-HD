@@ -10,7 +10,7 @@ from werkzeug.utils import secure_filename
 
 from data.startform import StartForm
 
-from map import lat_and_lon,make_href_for_hotel
+from map import make_href_for_cords,find_cords
 
 # Импорт ML функций для инференса
 from ai.llm import process_message, generate_description
@@ -89,7 +89,7 @@ def chat():
                 "content": [{"type": "text", "text": assistant_message}],
             })
     if session["lat"] and session["lon"]:
-        session["map"] = make_href_for_hotel((session["lat"], session["lon"]))
+        session["map"] = make_href_for_cords([session["lat"], session["lon"]])
         print(session["map"], "Получили ссылку на карту")
         return render_template(
             "chat.html",
@@ -136,7 +136,7 @@ def form():
         # a = findplace(form.address.data)
         # session["address"] = a["address"]
         session["address"] = form.address.data
-        lat_and_lon_res = lat_and_lon(form.address.data)
+        lat_and_lon_res = find_cords(form.address.data)
         print(lat_and_lon_res, "Получили координаты")
         if lat_and_lon_res:
             session["lat"] = lat_and_lon_res[0]
