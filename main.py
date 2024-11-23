@@ -5,12 +5,14 @@ import json
 
 from flask import *
 from flask import session
+import datetime
+from itertools import accumulate
 import os
 from werkzeug.utils import secure_filename
 
 from data.startform import StartForm
 
-from map import make_href_for_cords,find_cords
+from map import make_href_for_cords, find_cords
 
 # Импорт ML функций для инференса
 from ai.llm import process_message, generate_description
@@ -24,18 +26,36 @@ UPLOAD_FOLDER = os.path.join("staticFiles", "uploads")
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 
 
-
-
 @app.route("/")
-def index():
+def index() -> str:
+    """
+    Root route for the app, renders the main page.
+
+    Returns:
+        str: The rendered HTML template.
+    """
     return render_template("index.html")
 
 
 # Редирект на чат
 @app.route("/chat", methods=["GET", "POST"])
 def chat():
-    
-    
+    """
+    Handles the chat functionality for the application.
+
+    This function manages the session data for a chat between the user and the assistant.
+    It initializes session variables if they do not exist, processes user messages, generates
+    responses using AI, and updates the session with both user and assistant messages. The chat
+    page is rendered with relevant data such as messages, a map link (if available), and any AI-generated
+    descriptions.
+
+    For GET requests, it ensures required session variables are set and renders the chat page.
+    For POST requests, it processes the user's message, generates an AI response, updates the session,
+    and renders the chat page with updated information.
+
+    Returns:
+        str: The rendered HTML template for the chat page.
+    """
     if "messages" not in session:
         session["messages"] = [
             {
@@ -57,9 +77,11 @@ def chat():
     if "address" not in session:
         session["address"] = "Нет адреса"
     if "uploaded_data_file_path" not in session:
-        session["uploaded_data_file_path"] = None
+        session["uploaded_data_file_path"] = []
     if "ai_messages" not in session:
-       session["ai_messages"] = [] + [session["description"]] # список сообщений от ассистента --------------------<<<<<< ДОБАВИТЬ НАДО СЮДА ТОЖЕ
+        session["ai_messages"] = (
+            [] + [session["description"]]
+        )  # список сообщений от ассистента --------------------<<<<<< ДОБАВИТЬ НАДО СЮДА ТОЖЕ
 
     session.modified = True
     message = "Сообщение"
@@ -72,12 +94,14 @@ def chat():
 
         # process_message обрабатывает сообщение и возвращает ответ в виде str
         response = process_message(session)
-        
+
         if response.choices[0].message.tool_calls:
-            info = json.loads(response.choices[0].message.tool_calls[0].function.arguments)['info']
+            info = json.loads(
+                response.choices[0].message.tool_calls[0].function.arguments
+            )["info"]
 
             generated_description = generate_description(info)
-            session['ai_messages'].append(generated_description)
+            session["ai_messages"].append(generated_description)
 
             assistant_message = "Описание сгенерировано!"
         else:
@@ -87,49 +111,55 @@ def chat():
             {
                 "role": "assistant",
                 "content": [{"type": "text", "text": assistant_message}],
-            })
+            }
+        )
+    print(session["uploaded_data_file_path"])
     if session["lat"] and session["lon"]:
         session["map"] = make_href_for_cords([session["lat"], session["lon"]])
         print(session["map"], "Получили ссылку на карту")
         return render_template(
             "chat.html",
-            photo=session["uploaded_data_file_path"],
+            photoes=session["uploaded_data_file_path"],
             messages=session["messages"],
             map=session["map"],
             ai_messages=session["ai_messages"],
         )
     else:
-               return render_template(
+        return render_template(
             "chat.html",
-            photo=session["uploaded_data_file_path"],
+            photoes=session["uploaded_data_file_path"],
             messages=session["messages"],
             map=None,
             ai_messages=session["ai_messages"],
         )
-        #             {% if map %}
-        # <p>{{ session["map"].to_html(full_html=False)|safe }}</p>
-        # {% endif %}
-    # else:
-    #     session["map"] = None
-    # return render_template(
-    #     "chat.html",
-    #     photo=session["uploaded_data_file_path"],
-    #     messages=session["messages"],
-    #     map=False,
-    # )
+
 
 @app.route("/start", methods=["GET", "POST"])
 def form():
     form = StartForm()
+    if "uid" not in session:
+        t = datetime.datetime.now().timestamp()
+        session["uid"] = int(t)
+        print(t, "uid", session["uid"])
     if request.method == "POST":
         if form.photo.data.filename:
+            if "uploaded_data_file_path" not in session:
+                session["uploaded_data_file_path"] = []
+            newpath = f"./static/{session['uid']}/"
             filename = form.photo.data.filename
-            form.photo.data.save("./static/" + filename)
-            session["uploaded_data_file_path"] = os.path.join(
-                url_for("static", filename=filename)
+            if not os.path.exists(newpath):
+                os.makedirs(newpath)
+            allpath = (
+                newpath
+                + str(len(session["uploaded_data_file_path"]) + 1)
+                + "."
+                + filename.split(".")[-1]
             )
+            form.photo.data.save(allpath)
+
+            session["uploaded_data_file_path"].append(os.path.join(allpath))
         else:
-            session["uploaded_data_file_path"] = None
+            session["uploaded_data_file_path"] = []
 
         session["description"] = form.description.data
 
@@ -141,12 +171,11 @@ def form():
         if lat_and_lon_res:
             session["lat"] = lat_and_lon_res[0]
             session["lon"] = lat_and_lon_res[1]
-            
         else:
             session["lat"] = None
             session["lon"] = None
         session["url"] = url_for("chat")
-        session["ai_messages"] = [] 
+        session["ai_messages"] = []
         session["messages"] = [
             {
                 "role": "assistant",
@@ -163,7 +192,6 @@ def form():
 
         # + запуск чата
         return redirect("/chat")
-
     return render_template("start.html", form=form)
 
 
@@ -177,8 +205,15 @@ def page_not_found(e):
     return redirect("/")
 
 
-@app.route("/deletesession")
+@app.route("/deletesession", methods=["POST"])
 def deletesession():
+    f = session["uploaded_data_file_path"]
+    if f:
+        for el in f:
+            if el:
+                os.remove(el)
+
+        os.rmdir(f[0][: f[0].rfind("/")])
     session.clear()
     return redirect("/start")
 

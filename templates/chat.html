@@ -39,8 +39,15 @@
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-20px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .chat-header {
@@ -81,7 +88,7 @@
             gap: 10px;
         }
 
-       .chat-message {
+        .chat-message {
             max-width: 70%;
             padding: 12px 18px;
             border-radius: 12px;
@@ -93,8 +100,15 @@
         }
 
         @keyframes slideIn {
-            from { opacity: 0; transform: translateX(10px); }
-            to { opacity: 1; transform: translateX(0); }
+            from {
+                opacity: 0;
+                transform: translateX(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
         }
 
         .user-message {
@@ -159,7 +173,7 @@
         .description-container {
             max-width: 600px;
             background-color: #fff;
-border-radius: 15px;
+            border-radius: 15px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
             padding: 20px;
             animation: fadeIn 0.5s ease-out;
@@ -194,6 +208,9 @@ border-radius: 15px;
             line-height: 1.4;
         }
     </style>
+    <form action="/deletesession" method="post">
+        <button type="submit">Удалить данные сессии</button>
+    </form>
 </head>
 
 <body>
@@ -206,22 +223,27 @@ border-radius: 15px;
                     <p><span class="label">Адрес:</span> {{ session["address"] }}</p>
                     <p><span class="label">Координаты:</span> {{ session["lat"] }}, {{ session["lon"] }}</p>
                     {% if map %}
-                    <a href="{{ map }}" target="_blank">Результат</a>
+
+                    <a href="{{ map }}" target="_blank">Карта</a>
                     {% endif %}
 
+                    {% if photoes %}
+                    {% for photo in photoes %}
                     {% if photo %}
-                        <p><img src="{{ photo }}" alt="Фото" width="150" height="150"></p>
+                    <p><img src="{{ photo }}" alt="Фото" width="150" height="150"></p>
+                    {% endif %}
+                    {% endfor %}
                     {% endif %}
                 </div>
             </div>
 
             <div class="chat-messages">
                 {% for item in messages %}
-                    {% if item["role"] == "user" %}
-                        <div class="chat-message user-message">{{ item["content"][0]["text"] }}</div>
-                    {% elif item["role"] == "assistant" %}
-                        <div class="chat-message ai-message">{{ item["content"][0]["text"] }}</div>
-                    {% endif %}
+                {% if item["role"] == "user" %}
+                <div class="chat-message user-message">{{ item["content"][0]["text"] }}</div>
+                {% elif item["role"] == "assistant" %}
+                <div class="chat-message ai-message">{{ item["content"][0]["text"] }}</div>
+                {% endif %}
                 {% endfor %}
             </div>
 
@@ -239,11 +261,12 @@ border-radius: 15px;
             </div>
             <div class="description-content">
                 {% for item in ai_messages %}
-                    <div class="description-item">{{ item }}</div>
+                <div class="description-item">{{ item }}</div>
                 {% endfor %}
             </div>
         </div>
     </div>
+
 </body>
 
 </html>

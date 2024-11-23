@@ -7,3 +7,5 @@ pandas
 geopy
 matplotlib
 openai
+itertools
+datetime
