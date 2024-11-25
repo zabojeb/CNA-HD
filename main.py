@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import json
+import shutil
 
 from flask import *
 from flask import session
@@ -207,13 +208,10 @@ def page_not_found(e):
 
 @app.route("/deletesession", methods=["POST"])
 def deletesession():
-    f = session["uploaded_data_file_path"]
-    if f:
-        for el in f:
-            if el:
-                os.remove(el)
-
-        os.rmdir(f[0][: f[0].rfind("/")])
+    try:
+        shutil.rmtree(f"./static/{session['uid']}")
+    except:
+        pass
     session.clear()
     return redirect("/start")
 
