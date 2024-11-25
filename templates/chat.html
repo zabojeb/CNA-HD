@@ -204,21 +204,16 @@
         font-size: 15px;
         line-height: 1.4;
       }
-      .delete-session-button {
-        margin: 20px;
-        padding: 12px 20px;
-        background-color: #ff4b2b;
-        color: #fff;
+
+      .attach-button {
+        display: inline-block;
+        padding: 10px 20px;
         border: none;
-        border-radius: 25px;
+        background: none;
+        border-radius: 5px;
         cursor: pointer;
-        font-size: 16px;
-        transition: background-color 0.3s;
       }
 
-      .delete-session-button:hover {
-        background-color: #ff3a1e;
-      }
     </style>
   </head>
 
@@ -268,11 +263,24 @@
             />
             <input type="submit" value="Отправить" />
           </form>
-          <form action="/deletesession" method="post">
-            <button type="submit" class="delete-session-button">
-              Удалить данные сессии
-            </button>
-          </form>
+          <button class="attach-button" href="/attach_file">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="gray"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="lucide lucide-paperclip mt-0.5 h-5 w-5"
+            >
+              <path
+                d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48"
+              ></path>
+            </svg>
+          </button>
         </div>
       </div>
 

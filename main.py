@@ -13,11 +13,15 @@ from werkzeug.utils import secure_filename
 
 from data.startform import StartForm
 
-from map import make_href_for_cords, find_cords
+from map.map import make_href_for_cords, find_cords
 
-# Импорт ML функций для инференса
-from ai.llm import process_message, generate_description
-
+INFERENCE_TYPE = "MISTRAL"  # ["MISTRAL", "OPENAI", "HUGGINGFACE"]
+if INFERENCE_TYPE == "MISTRAL":
+    from ai.mistral import process_message, generate_description
+elif INFERENCE_TYPE == "OPENAI":
+    from ai.openai import process_message, generate_description
+elif INFERENCE_TYPE == "HUGGINGFACE":
+    from ai.huggingface import process_message, generate_description
 
 DEBUG = True
 
@@ -25,6 +29,29 @@ app = Flask(__name__)
 app.config["SECRET_KEY"] = "OurSecretKeyisI2D"
 UPLOAD_FOLDER = os.path.join("staticFiles", "uploads")
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
+
+
+def pipeline_ai():
+    response = process_message(session)
+
+    if response.choices[0].message.tool_calls:
+        info = json.loads(
+            response.choices[0].message.tool_calls[0].function.arguments
+        )["info"]
+
+        generated_description = generate_description(info)
+        session["ai_messages"].append(generated_description)
+
+        assistant_message = "Описание сгенерировано!"
+    else:
+        assistant_message = response.choices[0].message.content
+
+    session["messages"].append(
+        {
+            "role": "assistant",
+            "content": [{"type": "text", "text": assistant_message}],
+        }
+    )
 
 
 @app.route("/")
@@ -90,31 +117,16 @@ def chat():
     if request.method == "POST":
         message = request.form["message"]
         session["messages"].append(
-            {"role": "user", "content": [{"type": "text", "text": str(message)}]}
+            {"role": "user", "content": [
+                {"type": "text", "text": str(message)}]}
         )
 
-        # process_message обрабатывает сообщение и возвращает ответ в виде str
-        response = process_message(session)
+        pipeline_ai()
 
-        if response.choices[0].message.tool_calls:
-            info = json.loads(
-                response.choices[0].message.tool_calls[0].function.arguments
-            )["info"]
-
-            generated_description = generate_description(info)
-            session["ai_messages"].append(generated_description)
-
-            assistant_message = "Описание сгенерировано!"
-        else:
-            assistant_message = response.choices[0].message.content
-
-        session["messages"].append(
-            {
-                "role": "assistant",
-                "content": [{"type": "text", "text": assistant_message}],
-            }
-        )
+    # ОТЛАДКА
     print(session["uploaded_data_file_path"])
+
+    # ОТОБРАЖЕНИЕ
     if session["lat"] and session["lon"]:
         session["map"] = make_href_for_cords([session["lat"], session["lon"]])
         print(session["map"], "Получили ссылку на карту")
@@ -164,30 +176,42 @@ def form():
 
         session["description"] = form.description.data
 
-        # a = findplace(form.address.data)
-        # session["address"] = a["address"]
         session["address"] = form.address.data
         lat_and_lon_res = find_cords(form.address.data)
+
         print(lat_and_lon_res, "Получили координаты")
+
         if lat_and_lon_res:
             session["lat"] = lat_and_lon_res[0]
             session["lon"] = lat_and_lon_res[1]
         else:
             session["lat"] = None
             session["lon"] = None
+
         session["url"] = url_for("chat")
+
         session["ai_messages"] = []
-        session["messages"] = [
-            {
-                "role": "assistant",
-                "content": [
-                    {
-                        "type": "text",
-                        "text": "Привет! Я - Оскар, ассистент от МТС, который поможет Вам составить идеальное описание для отеля. Начнём?",
-                    }
-                ],
-            }
-        ]
+
+        session["messages"] = []
+        if session["description"]:
+            session["messages"].append(
+                {"role": "user", "content": [
+                    {"type": "text", "text": session["description"]}]}
+            )
+            pipeline_ai()
+
+        else:
+            session["messages"].append(
+                {
+                    "role": "assistant",
+                    "content": [
+                        {
+                            "type": "text",
+                            "text": "Привет! Я - Оскар, ассистент от МТС, который поможет Вам составить идеальное описание для отеля. Начнём?",
+                        }
+                    ],
+                })
+
         session["ai_messages"] = []
         session.modified = True
 
@@ -206,7 +230,7 @@ def page_not_found(e):
     return redirect("/")
 
 
-@app.route("/deletesession", methods=["POST"])
+@app.route("/deletesession", methods=["POST", "GET"])
 def deletesession():
     try:
         shutil.rmtree(f"./static/{session['uid']}")
