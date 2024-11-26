@@ -1,15 +1,36 @@
 from mistralai import Mistral
 import time
+import base64
+import copy
 
 CHAT_MODEL = "pixtral-large-latest"
-DESCRIPTION_MODEL = "pixtral-large-latest"
+DESCRIPTION_MODEL = "mistral-large-latest"
 
 MISTRAL_API_KEY = "oqwVBCjcajV2npBvgwVfs4zGBpOjbecL"
 
-def process_message(session):
-    messages = session["messages"]
 
-    uploaded_data = session["uploaded_data_file_path"]
+def encode_image(image_path):
+    """Encode the image to base64."""
+    try:
+        with open(image_path, "rb") as image_file:
+            return base64.b64encode(image_file.read()).decode('utf-8')
+    except FileNotFoundError:
+        print(f"Error: The file {image_path} was not found.")
+        return None
+    except Exception as e:  # Added general exception handling
+        print(f"Error: {e}")
+        return None
+
+
+def process_message(session):
+    messages = copy.deepcopy(session["messages"])
+
+    for i, message in enumerate(messages):
+        if message["role"] == "user":
+            for j, content in enumerate(message["content"]):
+                if content["type"] == "image_url":
+                    messages[i]["content"][j]["image_url"] = "data:image/jpeg;base64," + encode_image(messages[i]["content"][j]["image_url"])
+
     description = session["description"]
     address = session["address"]
 
@@ -72,6 +93,7 @@ def process_message(session):
     print("Message sent!")
 
     return completion
+
 
 def generate_description(info):
     messages = [{

@@ -29,14 +29,13 @@ app.config["SECRET_KEY"] = "OurSecretKeyisI2D"
 UPLOAD_FOLDER = os.path.join("staticFiles", "uploads")
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 
-
 def pipeline_ai():
     response = process_message(session)
 
     if response.choices[0].message.tool_calls:
-        info = json.loads(
-            response.choices[0].message.tool_calls[0].function.arguments
-        )["info"]
+        info = json.loads(response.choices[0].message.tool_calls[0].function.arguments)[
+            "info"
+        ]
 
         generated_description = generate_description(info)
         session["ai_messages"].append(generated_description)
@@ -107,24 +106,39 @@ def chat():
     if "uploaded_data_file_path" not in session:
         session["uploaded_data_file_path"] = []
     if "ai_messages" not in session:
-        session["ai_messages"] = (
-            [] + [session["description"]]
-        )  # список сообщений от ассистента --------------------<<<<<< ДОБАВИТЬ НАДО СЮДА ТОЖЕ
+        session["ai_messages"] = [] + [
+            session["description"]
+        ]  # список сообщений от ассистента --------------------<<<<<< ДОБАВИТЬ НАДО СЮДА ТОЖЕ
+    if "old_fp" not in session:
+        session["old_fp"] = []
 
-    session.modified = True
     message = "Сообщение"
 
     if request.method == "POST":
         message = request.form["message"]
-        session["messages"].append(
-            {"role": "user", "content": [
-                {"type": "text", "text": str(message)}]}
+
+        new_photos = list(
+            set(session["uploaded_data_file_path"]) - set(session["old_fp"])
         )
+        
+        session["old_fp"] = session["uploaded_data_file_path"]
+        
+        if new_photos != []:
+            content = [{"type": "text", "text": str(message)}]
+
+            for photo in new_photos:
+                content.append({"type": "image_url", "image_url": photo })
+
+            session["messages"].append({"role": "user", "content": content})
+        else:
+            session["messages"].append(
+                {"role": "user", "content": [{"type": "text", "text": str(message)}]}
+            )
 
         pipeline_ai()
 
-    # ОТЛАДКА
-    print(session["uploaded_data_file_path"], '----chat2')
+
+    session.modified = True
 
     # ОТОБРАЖЕНИЕ
     if session["lat"] and session["lon"]:
@@ -194,8 +208,10 @@ def form():
         session["messages"] = []
         if session["description"]:
             session["messages"].append(
-                {"role": "user", "content": [
-                    {"type": "text", "text": session["description"]}]}
+                {
+                    "role": "user",
+                    "content": [{"type": "text", "text": session["description"]}],
+                }
             )
             pipeline_ai()
 
@@ -209,7 +225,8 @@ def form():
                             "text": "Привет! Я - Оскар, ассистент от МТС, который поможет Вам составить идеальное описание для отеля. Начнём?",
                         }
                     ],
-                })
+                }
+            )
 
         session["ai_messages"] = []
         session.modified = True
@@ -239,10 +256,10 @@ def deletesession():
     return redirect("/start")
 
 
-@app.route('/attach_file', methods=['GET', 'POST'])
+@app.route("/attach_file", methods=["GET", "POST"])
 def upload_file():
-    print('attach_file')
-    files = request.files.getlist('file')
+    print("attach_file")
+    files = request.files.getlist("file")
     if request.method == "POST":
         if len(files) > 10:
             return "Вы можете загрузить максимум 10 файлов.", 400
@@ -272,7 +289,7 @@ def upload_file():
 
     session.modified = True
 
-    return redirect('/chat')
+    return redirect("/chat")
 
 
 if __name__ == "__main__":
