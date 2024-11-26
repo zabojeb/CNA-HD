@@ -6,7 +6,9 @@ from geopy.geocoders import Nominatim
 import matplotlib.pyplot as plt
 
 from requests import get
+import os
 
+YANDEX_MAPS_API_KEY = os.get_env("YANDEX_MAPS_API_KEY")
 
 def make_href_for_hotel(hotel):
     pt = f"{hotel[1]},{hotel[0]}"
@@ -28,10 +30,9 @@ def make_href_for_cords(cords: list[str]):
 
 def find_cords(address):
     resp = get(
-        f"https://geocode-maps.yandex.ru/1.x/?apikey=6fffa356-f251-4679-b684-878768ed3638&geocode={'+'.join(address.split())}&format=json"
+        f"https://geocode-maps.yandex.ru/1.x/?apikey={YANDEX_MAPS_API_KEY}&geocode={'+'.join(address.split())}&format=json"
     )
     try:
-        # print(resp.json()['response']["GeoObjectCollection"]["featureMember"])
         return resp.json()["response"]["GeoObjectCollection"]["featureMember"][0][
             "GeoObject"
         ]["Point"]["pos"].split()
@@ -47,13 +48,12 @@ def lat_and_lon(cords, distance=500):
         latitude, longitude = list(map(float, cords.split(", ")))
 
         # Находим заведения поблизости
-
         print((latitude, longitude))
         tags = {"amenity": True}
         nearby_places = ox.features.features_from_point(
             (latitude, longitude), dist=distance, tags=tags
         )
-        # print(nearby_places)
+
         if nearby_places.empty:
             return None
 
@@ -61,7 +61,3 @@ def lat_and_lon(cords, distance=500):
     except Exception as e:
         print(e)
         return None
-
-
-# plot_nearby_places("Россия, Москва, Отель Эден")
-# 59.148141, 37.942938

@@ -25,9 +25,10 @@ elif INFERENCE_TYPE == "HUGGINGFACE":
 DEBUG = True
 
 app = Flask(__name__)
-app.config["SECRET_KEY"] = "OurSecretKeyisI2D"
+app.config["SECRET_KEY"] = os.get_env("SECRET_KEY")
 UPLOAD_FOLDER = os.path.join("staticFiles", "uploads")
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
+
 
 def pipeline_ai():
     response = process_message(session)
@@ -120,14 +121,14 @@ def chat():
         new_photos = list(
             set(session["uploaded_data_file_path"]) - set(session["old_fp"])
         )
-        
+
         session["old_fp"] = session["uploaded_data_file_path"]
-        
+
         if new_photos != []:
             content = [{"type": "text", "text": str(message)}]
 
             for photo in new_photos:
-                content.append({"type": "image_url", "image_url": photo })
+                content.append({"type": "image_url", "image_url": photo})
 
             session["messages"].append({"role": "user", "content": content})
         else:
@@ -136,7 +137,6 @@ def chat():
             )
 
         pipeline_ai()
-
 
     session.modified = True
 

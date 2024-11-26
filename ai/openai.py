@@ -1,10 +1,11 @@
 from openai import OpenAI
 import time
+import os
 
 CHAT_MODEL = "openai/gpt-4o-mini"
 DESCRIPTION_MODEL = "openai/gpt-4o-mini"
 
-OPENROUTER_API_KEY = "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"
+OPENROUTER_API_KEY = os.get_env("OPENROUTER_API_KEY")
 
 
 def process_message(session):
@@ -34,12 +35,11 @@ def process_message(session):
           
           Стартовое описание отеля, предоставленное пользователем:
           {description}
-          """
+          """,
             }
-        ]
+        ],
     }
 
-    # gets API Key from environment variable OPENROUTER_API_KEY to prevent api key leak
     client = OpenAI(
         base_url="https://openrouter.ai/api/v1",
         api_key=OPENROUTER_API_KEY,
@@ -48,25 +48,25 @@ def process_message(session):
     completion = client.chat.completions.create(
         model=CHAT_MODEL,
         messages=[system_message] + messages,
-        tools=[{
-            "type": "function",
-            "function": {
-                "name": "generate_description",
-                "description": "Сгенерировать описание для отеля на основе новой полученной информации. Вызывай эту функцию ТОЛЬКО когда пользователь добавил новые данные или когда попросил изменить описание.",
-                "parameters": {
-                    "type": "object",
-                    "properties": {
-                        "info": {
-                            "type": "string",
-                            "description": "Информация об отеле. Название, описание, услуги, любая информация, пожелания и тд. Включи сюда также пожелания пользователя об описании."
+        tools=[
+            {
+                "type": "function",
+                "function": {
+                    "name": "generate_description",
+                    "description": "Сгенерировать описание для отеля на основе новой полученной информации. Вызывай эту функцию ТОЛЬКО когда пользователь добавил новые данные или когда попросил изменить описание.",
+                    "parameters": {
+                        "type": "object",
+                        "properties": {
+                            "info": {
+                                "type": "string",
+                                "description": "Информация об отеле. Название, описание, услуги, любая информация, пожелания и тд. Включи сюда также пожелания пользователя об описании.",
+                            },
                         },
+                        "required": ["info"],
                     },
-                    "required": [
-                        "info"
-                    ]
-                }
+                },
             }
-        }],
+        ],
     )
 
     time.sleep(1)
@@ -77,12 +77,13 @@ def process_message(session):
 
 
 def generate_description(info):
-    messages = [{
-        "role": "system",
-        "content": [
-            {
-                "type": "text",
-                "text": f"""
+    messages = [
+        {
+            "role": "system",
+            "content": [
+                {
+                    "type": "text",
+                    "text": f"""
           Ты - опытный специалист в сфере жилья и отелей.
           Твоя задача - составить хорошее привлекательное завлекающее описание отеля.
           Тебе будет предоставлено описание и вся нужная информация об отеле пользователя.
@@ -95,19 +96,11 @@ def generate_description(info):
           5. Другое
           
           Стартовое описание отеля, предоставленное пользователем и его пожелания:
-          """
-            }
-        ]
-    },
-        {
-        "role": "user",
-        "content": [
-            {
-                "type": "text",
-                "text": info
-            }
-        ]
-    }
+          """,
+                }
+            ],
+        },
+        {"role": "user", "content": [{"type": "text", "text": info}]},
     ]
 
     client = OpenAI(

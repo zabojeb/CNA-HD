@@ -2,11 +2,12 @@ from mistralai import Mistral
 import time
 import base64
 import copy
+import os
 
 CHAT_MODEL = "pixtral-large-latest"
 DESCRIPTION_MODEL = "mistral-large-latest"
 
-MISTRAL_API_KEY = "oqwVBCjcajV2npBvgwVfs4zGBpOjbecL"
+MISTRAL_API_KEY = os.get_env("MISTRAL_API_KEY")
 
 
 def encode_image(image_path):
@@ -17,7 +18,7 @@ def encode_image(image_path):
     except FileNotFoundError:
         print(f"Error: The file {image_path} was not found.")
         return None
-    except Exception as e:  # Added general exception handling
+    except Exception as e:
         print(f"Error: {e}")
         return None
 
@@ -59,7 +60,6 @@ def process_message(session):
         ]
     }
 
-    # gets API Key from environment variable MISTRAL_API_KEY to prevent api key leak
     client = Mistral(
         api_key=MISTRAL_API_KEY,
     )
