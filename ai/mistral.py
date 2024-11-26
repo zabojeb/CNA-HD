@@ -7,7 +7,7 @@ import os
 CHAT_MODEL = "pixtral-large-latest"
 DESCRIPTION_MODEL = "mistral-large-latest"
 
-MISTRAL_API_KEY = os.get_env("MISTRAL_API_KEY")
+MISTRAL_API_KEY = os.getenv("MISTRAL_API_KEY")
 
 
 def encode_image(image_path):

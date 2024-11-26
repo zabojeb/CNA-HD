@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 from requests import get
 import os
 
-YANDEX_MAPS_API_KEY = os.get_env("YANDEX_MAPS_API_KEY")
+YANDEX_MAPS_API_KEY = os.getenv("YANDEX_MAPS_API_KEY")
 
 def make_href_for_hotel(hotel):
     pt = f"{hotel[1]},{hotel[0]}"

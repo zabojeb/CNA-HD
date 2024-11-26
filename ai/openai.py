@@ -5,7 +5,7 @@ import os
 CHAT_MODEL = "openai/gpt-4o-mini"
 DESCRIPTION_MODEL = "openai/gpt-4o-mini"
 
-OPENROUTER_API_KEY = os.get_env("OPENROUTER_API_KEY")
+OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
 
 
 def process_message(session):

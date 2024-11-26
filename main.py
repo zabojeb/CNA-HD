@@ -25,7 +25,7 @@ elif INFERENCE_TYPE == "HUGGINGFACE":
 DEBUG = True
 
 app = Flask(__name__)
-app.config["SECRET_KEY"] = os.get_env("SECRET_KEY")
+app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")
 UPLOAD_FOLDER = os.path.join("staticFiles", "uploads")
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 
