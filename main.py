@@ -95,6 +95,7 @@ def chat():
                 ],
             }
         ]
+
     if "description" not in session:
         session["description"] = "Нет описания"
     if "lat" not in session:
@@ -245,14 +246,18 @@ def upload_file():
     if request.method == "POST":
         if len(files) > 10:
             return "Вы можете загрузить максимум 10 файлов.", 400
+
         if "uploaded_data_file_path" not in session:
             session["uploaded_data_file_path"] = []
-        for file in files:
 
+        for file in files:
             newpath = f"./static/{session['uid']}/"
+
             filename = file.filename
+
             if not os.path.exists(newpath):
                 os.makedirs(newpath)
+
             allpath = (
                 newpath
                 + str(len(session["uploaded_data_file_path"]) + 1)
@@ -262,8 +267,10 @@ def upload_file():
             file.save(allpath)
 
             session["uploaded_data_file_path"].append(os.path.join(allpath))
+
     print(session["uploaded_data_file_path"])
-            
+
+    session.modified = True
 
     return redirect('/chat')
 
