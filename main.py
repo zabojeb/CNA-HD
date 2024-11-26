@@ -3,13 +3,12 @@
 
 import json
 import shutil
-
+from flask import Flask, request, redirect, url_for, render_template
 from flask import *
 from flask import session
 import datetime
 from itertools import accumulate
 import os
-from werkzeug.utils import secure_filename
 
 from data.startform import StartForm
 
@@ -124,7 +123,7 @@ def chat():
         pipeline_ai()
 
     # ОТЛАДКА
-    print(session["uploaded_data_file_path"])
+    print(session["uploaded_data_file_path"], '----chat2')
 
     # ОТОБРАЖЕНИЕ
     if session["lat"] and session["lon"]:
@@ -153,7 +152,6 @@ def form():
     if "uid" not in session:
         t = datetime.datetime.now().timestamp()
         session["uid"] = int(t)
-        print(t, "uid", session["uid"])
     if request.method == "POST":
         if form.photo.data.filename:
             if "uploaded_data_file_path" not in session:
@@ -230,14 +228,44 @@ def page_not_found(e):
     return redirect("/")
 
 
-@app.route("/deletesession", methods=["POST", "GET"])
+@app.route("/deletesession")
 def deletesession():
     try:
         shutil.rmtree(f"./static/{session['uid']}")
-    except:
+    except Exception:
         pass
     session.clear()
     return redirect("/start")
+
+
+@app.route('/attach_file', methods=['GET', 'POST'])
+def upload_file():
+    print('attach_file')
+    files = request.files.getlist('file')
+    if request.method == "POST":
+        if len(files) > 10:
+            return "Вы можете загрузить максимум 10 файлов.", 400
+        if "uploaded_data_file_path" not in session:
+            session["uploaded_data_file_path"] = []
+        for file in files:
+
+            newpath = f"./static/{session['uid']}/"
+            filename = file.filename
+            if not os.path.exists(newpath):
+                os.makedirs(newpath)
+            allpath = (
+                newpath
+                + str(len(session["uploaded_data_file_path"]) + 1)
+                + "."
+                + filename.split(".")[-1]
+            )
+            file.save(allpath)
+
+            session["uploaded_data_file_path"].append(os.path.join(allpath))
+    print(session["uploaded_data_file_path"])
+            
+
+    return redirect('/chat')
 
 
 if __name__ == "__main__":
