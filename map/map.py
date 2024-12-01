@@ -37,7 +37,7 @@ def find_cords(address):
             "GeoObject"
         ]["Point"]["pos"].split()
     except Exception as e:
-        return None
+        return resp
 
 
 def lat_and_lon(cords, distance=500):
