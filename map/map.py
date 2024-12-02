@@ -19,9 +19,7 @@ def make_href_for_hotel(hotel):
     return href
 
 
-<<<<<<< HEAD
 # old
-=======
 def make_href_for_cords(cords: list[str]):
     try:
         print(cords)
@@ -46,7 +44,7 @@ def find_cords(address):
         return resp
 
 
->>>>>>> a079e69f926e7065e94c57fc2835bcf1ba4bda44
+
 def lat_and_lon(cords, distance=500):
     # Инициализируем геоколлектор
     geolocator = Nominatim(user_agent="i2d")
@@ -68,32 +66,6 @@ def lat_and_lon(cords, distance=500):
     except Exception as e:
         print(e)
         return None
-
-
-def make_href_for_cords(cords: list[str]):
-    try:
-        print(cords)
-        hotel = list(map(float, cords))
-
-        pt = f"{hotel[0]},{hotel[1]}"
-    except Exception as e:
-        return "Error"
-    href = f"https://yandex.ru/maps/?ll={hotel[0]},{hotel[1]}&text=достопримечательность&pt={pt}&z=16&l=map"
-    return href
-
-
-def find_cords(address):
-    resp = get(
-        f"https://geocode-maps.yandex.ru/1.x/?apikey={YANDEX_MAPS_API_KEY}&geocode={'+'.join(address.split())}&format=json"
-    )
-    
-    try:
-        return resp.json()["response"]["GeoObjectCollection"]["featureMember"][0][
-            "GeoObject"
-        ]["Point"]["pos"].split()
-    except Exception as e:
-        return None
-
 
 def make_static_map(cords):
     href = f"https://static-maps.yandex.ru/v1?ll={cords[0]},{cords[1]}&spn=0.00619,0.00619&pt={cords[0]},{cords[1]},pm2rdm&apikey={STATIC_YANDEX_MAPS_API_KEY}"
