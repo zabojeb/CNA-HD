@@ -12,7 +12,7 @@ import os
 
 from data.startform import StartForm
 
-from map.map import make_href_for_cords, find_cords
+from map.map import make_href_for_cords, find_cords, make_static_map
 
 INFERENCE_TYPE = "MISTRAL"  # ["MISTRAL", "OPENAI", "HUGGINGFACE"]
 if INFERENCE_TYPE == "MISTRAL":
@@ -107,9 +107,9 @@ def chat():
     if "uploaded_data_file_path" not in session:
         session["uploaded_data_file_path"] = []
     if "ai_messages" not in session:
-        session["ai_messages"] = [] + [
-            session["description"]
-        ]  # список сообщений от ассистента --------------------<<<<<< ДОБАВИТЬ НАДО СЮДА ТОЖЕ
+        session["ai_messages"] = (
+            [] + [session["description"]]
+        )  # список сообщений от ассистента --------------------<<<<<< ДОБАВИТЬ НАДО СЮДА ТОЖЕ
     if "old_fp" not in session:
         session["old_fp"] = []
 
@@ -144,12 +144,15 @@ def chat():
     if session["lat"] and session["lon"]:
         session["map"] = make_href_for_cords([session["lat"], session["lon"]])
         print(session["map"], "Получили ссылку на карту")
+        session["static_map"] = make_static_map([session["lat"], session["lon"]])
+        print(session["static_map"], "Получили статическую карту")
         return render_template(
             "chat.html",
             photoes=session["uploaded_data_file_path"],
             messages=session["messages"],
             map=session["map"],
             ai_messages=session["ai_messages"],
+            static_map=session["static_map"],
         )
     else:
         return render_template(
@@ -158,6 +161,7 @@ def chat():
             messages=session["messages"],
             map=None,
             ai_messages=session["ai_messages"],
+            static_map=None,
         )
 
 

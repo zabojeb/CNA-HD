@@ -231,8 +231,11 @@
               session["lon"] }}
             </p>
             {% if map %}
-
-            <a href="{{ map }}" target="_blank">Карта</a>
+            <a href="{{ map }}" target="_blank">
+              <img src="{{ static_map }}" alt="Карта" width="400" height="300"/>
+            </a>
+            
+            
             {% endif %} {% if photoes %} {% for photo in photoes %} {% if photo
             %}
             <p><img src="{{ photo }}" alt="Фото" width="150" height="150" /></p>
