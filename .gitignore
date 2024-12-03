@@ -166,3 +166,5 @@ cython_debug/
 /cache
 /notebooks/cache
 *backup
+
+/static/photos

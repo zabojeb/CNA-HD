@@ -99,7 +99,7 @@ def chat():
         ]
 
     if "description" not in session:
-        session["description"] = "Нет описания"
+        session["description"] = ""
     if "lat" not in session:
         session["lat"] = None
     if "lon" not in session:
@@ -209,7 +209,7 @@ def form():
         if form.photo.data.filename:
             if "uploaded_data_file_path" not in session:
                 session["uploaded_data_file_path"] = []
-            newpath = f"./static/{session['uid']}/"
+            newpath = f"./static/photos/{session['uid']}/"
             filename = form.photo.data.filename
             if not os.path.exists(newpath):
                 os.makedirs(newpath)
@@ -287,7 +287,7 @@ def page_not_found(e):
 @app.route("/deletesession")
 def deletesession():
     try:
-        shutil.rmtree(f"./static/{session['uid']}")
+        shutil.rmtree(f"./static/photos/{session['uid']}")
     except Exception:
         pass
     session.clear()
@@ -306,7 +306,7 @@ def upload_file():
             session["uploaded_data_file_path"] = []
 
         for file in files:
-            newpath = f"./static/{session['uid']}/"
+            newpath = f"./static/photos/{session['uid']}/"
 
             filename = file.filename
 
