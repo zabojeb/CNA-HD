@@ -8,6 +8,8 @@ import matplotlib.pyplot as plt
 from requests import get
 import os
 
+import flask
+
 YANDEX_MAPS_API_KEY = os.getenv("YANDEX_MAPS_API_KEY")
 STATIC_YANDEX_MAPS_API_KEY = os.getenv("STATIC_YANDEX_MAPS_API_KEY")
 
@@ -34,7 +36,7 @@ def make_href_for_cords(cords: list[str]):
 
 def find_cords(address):
     resp = get(
-        f"https://geocode-maps.yandex.ru/1.x/?apikey={YANDEX_MAPS_API_KEY}&geocode={'+'.join(address.split())}&format=json"
+        f"https://geocode-maps.yandex.ru/1.x/?apikey={YANDEX_MAPS_API_KEY}&geocode={'+'.join(address.split())}&format=json&lang=ru_RU&kind=house"
     )
     try:
         return resp.json()["response"]["GeoObjectCollection"]["featureMember"][0][
