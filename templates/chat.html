@@ -1,4 +1,5 @@
-{% extends "base.html" %} {% block content %}
+{% extends "base.html" %}
+{% block content %}
 <!DOCTYPE html>
 <html lang="ru">
 
@@ -244,11 +245,30 @@
           {% endif %} {% endfor %} {% endif %}
         </div>
       </div>
-
-      <div class="chat-messages">
-        {% for item in messages %} {% if item["role"] == "user" %}
-        <div class="chat-message user-message">
-          {{ item["content"][0]["text"] }}
+        <div class="chat-messages">
+          {% for item in messages %}
+            {% if item["role"] == "user" %}
+              <div class="chat-message user-message">
+                {% for content in item["content"] %}
+                  {% if content["type"] == "text" %}
+                    {{ content["text"] }}
+                  {% elif content["type"] == "image_url" %}
+                    <img src="{{ content["image_url"] }}" alt="Фото" width="150" height="150" />
+                  {% endif %}
+                {% endfor %}
+              </div>
+            {% elif item["role"] == "assistant" %}
+              <div class="chat-message ai-message">
+                {% for content in item["content"] %}
+                  {% if content["type"] == "text" %}
+                    {{ content["text"] }}
+                  {% elif content["type"] == "image_url" %}
+                    <img src="{{ content["image_url"] }}" alt="Фото" width="150" height="150" />
+                  {% endif %}
+                {% endfor %}
+              </div>
+            {% endif %}
+          {% endfor %}
         </div>
         {% elif item["role"] == "assistant" %}
         <div class="chat-message ai-message">

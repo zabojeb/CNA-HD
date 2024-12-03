@@ -10,8 +10,11 @@ import datetime
 import os
 from markdown import markdown
 from data.startform import StartForm
-
 from map.map import make_href_for_cords, find_cords, make_static_map
+
+import logging
+
+logger = logging.getLogger(__name__)
 
 INFERENCE_TYPE = "MISTRAL"  # ["MISTRAL", "OPENAI", "HUGGINGFACE"]
 if INFERENCE_TYPE == "MISTRAL":
@@ -113,16 +116,18 @@ def chat():
         session["old_fp"] = []
 
     message = "Сообщение"
-
+    new_photos_non_update = list(
+                set(session["uploaded_data_file_path"]) - set(session["old_fp"])
+            )
     if request.method == "POST":
         message = request.form["message"]
 
         new_photos = list(
             set(session["uploaded_data_file_path"]) - set(session["old_fp"])
         )
-
+        
         session["old_fp"] = session["uploaded_data_file_path"]
-
+        
         if new_photos != []:
             content = [{"type": "text", "text": str(message)}]
 
@@ -140,33 +145,59 @@ def chat():
 
     session.modified = True
 
-    # ОТОБРАЖЕНИЕ
-    
-    if session["lat"] and session["lon"]:
-        session["map"] = make_href_for_cords([session["lat"], session["lon"]])
-        print(session["map"], "Получили ссылку на карту")
-        session["static_map"] = make_static_map([session["lat"], session["lon"]])
-        print(session["static_map"], "Получили статическую карту")
-        return render_template(
-            "chat.html",
-            photoes=session["uploaded_data_file_path"],
-            messages=session["messages"],
-            map=session["map"],
-            ai_messages=session["ai_messages"],
-            static_map=session["static_map"],
-            enumerate=enumerate
-        )
-    else:
-        return render_template(
-            "chat.html",
-            photoes=session["uploaded_data_file_path"],
-            messages=session["messages"],
-            map=None,
-            ai_messages=session["ai_messages"],
-            static_map=None,
-            enumerate=enumerate
-        )
 
+    if request.method == "POST":
+    # ОТОБРАЖЕНИЕ НА POST
+        if session["lat"] and session["lon"]:
+            session["map"] = make_href_for_cords([session["lat"], session["lon"]])
+            app.logger.debug((session["map"], "Получили ссылку на карту"))
+            session["static_map"] = make_static_map([session["lat"], session["lon"]])
+            app.logger.debug((session["static_map"], "Получили статическую карту"))
+            return render_template(
+                "chat.html",
+                photoes=[],
+                messages=session["messages"],
+                map=session["map"],
+                ai_messages=session["ai_messages"],
+                static_map=session["static_map"],
+                enumerate=enumerate
+            )
+        else:
+            return render_template(
+                "chat.html",
+                photoes=[],
+                messages=session["messages"],
+                map=None,
+                ai_messages=session["ai_messages"],
+                static_map=None,
+                enumerate=enumerate
+            )
+    ### ОТОБРАЖЕНИЕ НА GET
+    else:
+        if session["lat"] and session["lon"]:
+            session["map"] = make_href_for_cords([session["lat"], session["lon"]])
+            app.logger.debug((session["map"], "Получили ссылку на карту"))
+            session["static_map"] = make_static_map([session["lat"], session["lon"]])
+            app.logger.debug((session["static_map"], "Получили статическую карту"))
+            return render_template(
+                "chat.html",
+                photoes=new_photos_non_update,
+                messages=session["messages"],
+                map=session["map"],
+                ai_messages=session["ai_messages"],
+                static_map=session["static_map"],
+                enumerate=enumerate
+            )
+        else:
+            return render_template(
+                "chat.html",
+                photoes=new_photos_non_update,
+                messages=session["messages"],
+                map=None,
+                ai_messages=session["ai_messages"],
+                static_map=None,
+                enumerate=enumerate
+            )
 
 @app.route("/start", methods=["GET", "POST"])
 def form():
@@ -197,9 +228,9 @@ def form():
         session["description"] = form.description.data
 
         session["address"] = form.address.data
-        lat_and_lon_res = find_cords(form.address.data)
+        lat_and_lon_res = find_cords("отель" + form.address.data)
 
-        print(lat_and_lon_res, "Получили координаты")
+        app.logger.debug((lat_and_lon_res, "Получили координаты"))
 
         if lat_and_lon_res:
             session["lat"] = lat_and_lon_res[0]
@@ -265,7 +296,7 @@ def deletesession():
 
 @app.route("/attach_file", methods=["GET", "POST"])
 def upload_file():
-    print("attach_file")
+    app.logger.debug(("attach_file"))
     files = request.files.getlist("file")
     if request.method == "POST":
         if len(files) > 10:
@@ -292,7 +323,7 @@ def upload_file():
 
             session["uploaded_data_file_path"].append(os.path.join(allpath))
 
-    print(session["uploaded_data_file_path"])
+    app.logger.debug((session["uploaded_data_file_path"]))
 
     session.modified = True
 
