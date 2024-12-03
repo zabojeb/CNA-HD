@@ -7,9 +7,8 @@ from flask import Flask, request, redirect, url_for, render_template
 from flask import *
 from flask import session
 import datetime
-from itertools import accumulate
 import os
-
+from markdown import markdown
 from data.startform import StartForm
 
 from map.map import make_href_for_cords, find_cords, make_static_map
@@ -137,10 +136,12 @@ def chat():
             )
 
         pipeline_ai()
+        #session['ai_messages']  = [markdown(el) for el in session['ai_messages']]
 
     session.modified = True
 
     # ОТОБРАЖЕНИЕ
+    
     if session["lat"] and session["lon"]:
         session["map"] = make_href_for_cords([session["lat"], session["lon"]])
         print(session["map"], "Получили ссылку на карту")
@@ -153,6 +154,7 @@ def chat():
             map=session["map"],
             ai_messages=session["ai_messages"],
             static_map=session["static_map"],
+            enumerate=enumerate
         )
     else:
         return render_template(
@@ -162,6 +164,7 @@ def chat():
             map=None,
             ai_messages=session["ai_messages"],
             static_map=None,
+            enumerate=enumerate
         )
 
 
