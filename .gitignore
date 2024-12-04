@@ -168,3 +168,4 @@ cython_debug/
 *backup
 
 /static/photos
+/static/audio

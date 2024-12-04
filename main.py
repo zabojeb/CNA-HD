@@ -116,17 +116,17 @@ def chat():
 
     message = "Сообщение"
     new_photos_non_update = list(
-                set(session["uploaded_data_file_path"]) - set(session["old_fp"])
-            )
+        set(session["uploaded_data_file_path"]) - set(session["old_fp"])
+    )
     if request.method == "POST":
         message = request.form["message"]
 
         new_photos = list(
             set(session["uploaded_data_file_path"]) - set(session["old_fp"])
         )
-        
+
         session["old_fp"] = session["uploaded_data_file_path"]
-        
+
         if new_photos != []:
             content = [{"type": "text", "text": str(message)}]
 
@@ -140,13 +140,12 @@ def chat():
             )
 
         pipeline_ai()
-        #session['ai_messages']  = [markdown(el) for el in session['ai_messages']]
+        # session['ai_messages']  = [markdown(el) for el in session['ai_messages']]
 
     session.modified = True
 
-
     if request.method == "POST":
-    # ОТОБРАЖЕНИЕ НА POST
+        # ОТОБРАЖЕНИЕ НА POST
         if session["lat"] and session["lon"]:
             session["map"] = make_href_for_cords([session["lat"], session["lon"]])
             app.logger.debug((session["map"], "Получили ссылку на карту"))
@@ -159,7 +158,7 @@ def chat():
                 map=session["map"],
                 ai_messages=session["ai_messages"],
                 static_map=session["static_map"],
-                enumerate=enumerate
+                enumerate=enumerate,
             )
         else:
             return render_template(
@@ -169,7 +168,7 @@ def chat():
                 map=None,
                 ai_messages=session["ai_messages"],
                 static_map=None,
-                enumerate=enumerate
+                enumerate=enumerate,
             )
     ### ОТОБРАЖЕНИЕ НА GET
     else:
@@ -185,7 +184,7 @@ def chat():
                 map=session["map"],
                 ai_messages=session["ai_messages"],
                 static_map=session["static_map"],
-                enumerate=enumerate
+                enumerate=enumerate,
             )
         else:
             return render_template(
@@ -195,8 +194,9 @@ def chat():
                 map=None,
                 ai_messages=session["ai_messages"],
                 static_map=None,
-                enumerate=enumerate
+                enumerate=enumerate,
             )
+
 
 @app.route("/start", methods=["GET", "POST"])
 def form():
@@ -291,6 +291,28 @@ def deletesession():
         pass
     session.clear()
     return redirect("/start")
+
+
+@app.route("/upload", methods=["POST"])
+def upload():
+    if "audio" not in request.files:
+        return "Нет файла", 400
+    if "uploaded_audio_file_path" not in session:
+        session["uploaded_audio_file_path"] = []
+    audio_file = request.files["audio"]
+    newpath = f"./static/audio/{session['uid']}/"
+    if not os.path.exists(newpath):
+        os.makedirs(newpath)
+    allpath = (
+        newpath
+        + str(len(session["uploaded_audio_file_path"]) + 1)
+        + "."
+        + audio_file.filename.split(".")[-1]
+    )
+    audio_file.save(allpath)
+
+    session["uploaded_audio_file_path"].append(os.path.join(allpath))
+    return redirect("/chat")
 
 
 @app.route("/attach_file", methods=["GET", "POST"])
