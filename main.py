@@ -312,6 +312,12 @@ def upload():
     audio_file.save(allpath)
 
     session["uploaded_audio_file_path"].append(os.path.join(allpath))
+    
+    ### ADD AUDIO MESSAGE TO CHAT MESSAGES
+    ### session[""]
+    
+    session.modified = True
+    
     return redirect("/chat")
 
 
