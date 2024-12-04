@@ -8,7 +8,6 @@ from flask import *
 from flask import session
 import datetime
 import os
-from markdown import markdown
 from data.startform import StartForm
 from map.map import make_href_for_cords, find_cords, make_static_map
 
@@ -155,7 +154,7 @@ def chat():
             app.logger.debug((session["static_map"], "Получили статическую карту"))
             return render_template(
                 "chat.html",
-                photoes=[],
+                photos=[],
                 messages=session["messages"],
                 map=session["map"],
                 ai_messages=session["ai_messages"],
@@ -165,7 +164,7 @@ def chat():
         else:
             return render_template(
                 "chat.html",
-                photoes=[],
+                photos=[],
                 messages=session["messages"],
                 map=None,
                 ai_messages=session["ai_messages"],
@@ -181,7 +180,7 @@ def chat():
             app.logger.debug((session["static_map"], "Получили статическую карту"))
             return render_template(
                 "chat.html",
-                photoes=new_photos_non_update,
+                photos=new_photos_non_update,
                 messages=session["messages"],
                 map=session["map"],
                 ai_messages=session["ai_messages"],
@@ -191,7 +190,7 @@ def chat():
         else:
             return render_template(
                 "chat.html",
-                photoes=new_photos_non_update,
+                photos=new_photos_non_update,
                 messages=session["messages"],
                 map=None,
                 ai_messages=session["ai_messages"],
