@@ -294,7 +294,6 @@
   </div>
   <button id="record">Записать</button>
   <button id="stop" disabled>Остановить</button>
-  
 </body>
 <script>
   let mediaRecorder;
@@ -317,8 +316,7 @@
     mediaRecorder.stop();
     mediaRecorder.onstop = () => {
       const audioBlob = new Blob(audioChunks);
-      const audioUrl = URL.createObjectURL(audioBlob);
-      
+
       const formData = new FormData();
       formData.append('audio', audioBlob, 'message.wav');
 
