@@ -38,12 +38,15 @@ app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 # Настройка Flask-Session
 app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "your_secret_key")
 app.config["SESSION_TYPE"] = "filesystem"  # Хранение сессий в файловой системе
-app.config["SESSION_FILE_DIR"] = os.path.join(os.getcwd(), "flask_session")  # Директория для файлов сессий
+app.config["SESSION_FILE_DIR"] = os.path.join(
+    os.getcwd(), "flask_session"
+)  # Директория для файлов сессий
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_USE_SIGNER"] = True
 
 # Инициализация Flask-Session
 Session(app)
+
 
 def pipeline_ai():
     response = process_message(session)
@@ -123,8 +126,7 @@ def chat():
     if "uploaded_data_file_path" not in session:
         session["uploaded_data_file_path"] = []
     if "ai_messages" not in session:
-        session["ai_messages"] = [
-            "Здесь будут описания"]
+        session["ai_messages"] = ["Здесь будут описания"]
 
     if "old_fp" not in session:
         session["old_fp"] = []
@@ -316,62 +318,54 @@ def deletesession():
 
 @app.route("/refresh")
 def refresh():
-    return redirect("/chat")
+    print(1)
+    return render_template("refresh.html")
 
 
-@app.route("/upload", methods=["POST"])
+@app.route("/upload", methods=["GET", "POST"])
 def upload():
     session.modified = True
-    if "description" not in session:
-        session["description"] = ""
-    if "lat" not in session:
-        session["lat"] = None
-    if "lon" not in session:
-        session["lon"] = None
-    if "address" not in session:
-        session["address"] = "Нет адреса"
-    if "uploaded_data_file_path" not in session:
-        session["uploaded_data_file_path"] = []
-    if "ai_messages" not in session:
-        session["ai_messages"] = ["Здесь будут описания"]
-    if "old_fp" not in session:
-        session["old_fp"] = []
+    # flash('Обновите страницу пожалуйста')
+    # Инициализация ключей сессии
+    session.setdefault("description", "")
+    session.setdefault("lat", None)
+    session.setdefault("lon", None)
+    session.setdefault("address", "Нет адреса")
+    session.setdefault("uploaded_data_file_path", [])
+    session.setdefault("ai_messages", ["Здесь будут описания"])
+    session.setdefault("old_fp", [])
+    session.setdefault("uploaded_audio_file_path", [])
+    session.setdefault("messages", [])
+
     if "audio" not in request.files:
         return "Нет файла", 400
-    if "uploaded_audio_file_path" not in session:
-        session["uploaded_audio_file_path"] = []
-    audio_file = request.files["audio"]
 
+    audio_file = request.files["audio"]
     newpath = f"./static/audio/{session['uid']}/"
 
     if not os.path.exists(newpath):
         os.makedirs(newpath)
-    allpath = (
-        newpath
-        + str(len(session["uploaded_audio_file_path"]) + 1)
-        + "."
-        + audio_file.filename.split(".")[-1]
-    ).strip()
-    app.logger.debug((allpath))
-    audio_file.save(allpath)
-    text_from_audio = transcribe(allpath)
 
-    app.logger.debug((text_from_audio))
+    allpath = f"{newpath}{str(len(session['uploaded_audio_file_path']) + 1)}.{audio_file.filename.split('.')[-1]}"
+    app.logger.debug(allpath)
+
+    try:
+        audio_file.save(allpath)
+        text_from_audio = transcribe(allpath)
+        app.logger.debug(text_from_audio)
+    except Exception as e:
+        app.logger.error(f"Error processing audio file: {e}")
+        return "Ошибка при обработке аудиофайла", 500
 
     session["uploaded_audio_file_path"].append(allpath)
 
-    ### ADD AUDIO MESSAGE TO CHAT MESSAGES
-    ### session[""]
     new_photos = list(set(session["uploaded_data_file_path"]) - set(session["old_fp"]))
-
     session["old_fp"] = session["uploaded_data_file_path"]
 
-    if new_photos != []:
+    if new_photos:
         content = [{"type": "text", "text": str(text_from_audio)}]
-
         for photo in new_photos:
             content.append({"type": "image_url", "image_url": photo})
-
         session["messages"].append({"role": "user", "content": content})
     else:
         session["messages"].append(
@@ -381,8 +375,14 @@ def upload():
             }
         )
 
-    pipeline_ai()
-    return redirect("/refresh")
+    try:
+        pipeline_ai()
+    except Exception as e:
+        app.logger.error(f"Error in pipeline_ai: {e}")
+        return "Ошибка при выполнении pipeline_ai", 500
+    session.modified = True
+    
+    return redirect("/chat")
 
 
 @app.route("/attach_file", methods=["GET", "POST"])

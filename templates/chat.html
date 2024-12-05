@@ -1,596 +1,638 @@
-{% extends "base.html" %} {% block content %}
+{% extends "base.html" %}
+{% block content %}
 <!DOCTYPE html>
 <html lang="ru">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Чат</title>
-    <style>
-      @import url("https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap");
 
-      body {
-        font-family: "Roboto", sans-serif;
-        margin: 0;
-        padding: 20px;
-        background-color: #e9ecef;
-        display: flex;
-        justify-content: center;
-        align-items: flex-start;
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Чат</title>
+  <style>
+    @import url("https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap");
+
+    body {
+      font-family: "Roboto", sans-serif;
+      margin: 0;
+      padding: 20px;
+      background-color: #e9ecef;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+    }
+
+    .main-container {
+      display: flex;
+      gap: 20px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .chat-container {
+      flex: 1;
+      max-width: 1000px;
+      background-color: #fff;
+      border-radius: 15px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+      overflow: hidden;
+      animation: fadeIn 0.5s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
       }
 
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .chat-header {
+      background: linear-gradient(135deg, #ff416c, #ff4b2b);
+      color: #fff;
+      padding: 25px;
+    }
+
+    .chat-header-title {
+      font-size: 26px;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+
+    .chat-info {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .chat-header p {
+      margin: 5px 0;
+    }
+
+    .chat-header img {
+      border-radius: 10px;
+      margin-top: 10px;
+      border: 2px solid white;
+    }
+
+    .chat-messages {
+      height: 350px;
+      overflow-y: auto;
+      padding: 20px;
+      border-top: 1px solid #eee;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .chat-message {
+      max-width: 70%;
+      padding: 12px 18px;
+      border-radius: 12px;
+      font-size: 16px;
+      line-height: 1.5;
+      word-wrap: break-word;
+      display: inline-block;
+      animation: slideIn 0.3s forwards;
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateX(10px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    .user-message {
+      background-color: #c7ecee;
+      color: #333;
+      align-self: flex-end;
+      transition: background-color 0.3s;
+    }
+
+    .user-message:hover {
+      background-color: #a5ced1;
+    }
+
+    .ai-message {
+      background-color: #f6f6f6;
+      color: #333;
+      align-self: flex-start;
+      transition: background-color 0.3s;
+    }
+
+    .ai-message:hover {
+      background-color: #e2e2e2;
+    }
+
+    .chat-input {
+      align-items: center;
+      display: flex;
+      padding: 15px;
+      border-top: 1px solid #eee;
+      background-color: #f9f9f9;
+    }
+
+    .chat-input input[type="text"] {
+      max-height: 50px;
+      max-width: 60%;
+      width: 37vw;
+      flex-grow: 1;
+      padding: 12px;
+      border: 1px solid #ccc;
+      border-radius: 25px;
+      outline: none;
+      font-size: 16px;
+      transition: border-color 0.3s;
+    }
+
+    .chat-input input[type="text"]:focus {
+      border-color: #ff4b2b;
+    }
+
+    .chat-input input[type="submit"] {
+      max-height: 50px;
+      max-width: 50px;
+      height: 8vw;
+      width: 8vw;
+      margin-left: 10px;
+
+      background-color: #ff4b2b;
+      color: #fff;
+      border: none;
+      border-radius: 25px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: background-color 0.3s;
+    }
+
+    .chat-input input[type="submit"]:hover {
+      background-color: #ff3a1e;
+    }
+
+    .description-container {
+      max-width: 600px;
+      background-color: #fff;
+      border-radius: 15px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+      padding: 20px;
+      animation: fadeIn 0.5s ease-out;
+      overflow-y: auto;
+      max-height: 552px;
+    }
+
+    .description-header {
+      background: linear-gradient(135deg, #4e54c8, #8f94fb);
+      color: #fff;
+      padding: 15px;
+      border-radius: 10px;
+      text-align: center;
+    }
+
+    .description-header-title {
+      font-size: 20px;
+      font-weight: bold;
+    }
+
+    .description-tabs {
+      margin-top: 15px;
+      display: flex;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .description-tab {
+      padding: 10px 20px;
+      background-color: #4e54c8;
+      color: #fff;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    .description-tab.active {
+      background-color: #3b49db;
+    }
+
+    .description-tab:hover {
+      background-color: #3b49db;
+    }
+
+    .description-content {
+      margin-top: 15px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .description-item {
+      background-color: #f6f6f6;
+      border-left: 4px solid #4e54c8;
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 15px;
+      line-height: 1.4;
+    }
+
+    .attach-button {
+      display: inline-block;
+      padding: 10px 20px;
+      border: none;
+      background: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    /* Эффекты для всех элементов */
+    * {
+      transition: all 0.3s ease;
+    }
+
+    @keyframes recording {
+
+      0%,
+      100% {
+        background-color: #c0392b;
+      }
+
+      50% {
+        background-color: #e74c3c;
+      }
+    }
+
+    .voice-record-button.recording {
+      animation: recording 1s infinite;
+    }
+
+    .attach-button:hover::after {
+      content: "Прикрепить файл";
+      position: absolute;
+      bottom: 120%;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: #333;
+      color: #fff;
+      padding: 5px 10px;
+      border-radius: 5px;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    @media (max-width: 768px) {
       .main-container {
-        display: flex;
-        gap: 20px;
-        max-width: 1200px;
-        margin: 0 auto;
-      }
-
-      .chat-container {
-        flex: 1;
-        max-width: 1000px;
-        background-color: #fff;
-        border-radius: 15px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-        overflow: hidden;
-        animation: fadeIn 0.5s ease-out;
-      }
-
-      @keyframes fadeIn {
-        from {
-          opacity: 0;
-          transform: translateY(-20px);
-        }
-
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
-      }
-
-      .chat-header {
-        background: linear-gradient(135deg, #ff416c, #ff4b2b);
-        color: #fff;
-        padding: 25px;
-      }
-
-      .chat-header-title {
-        font-size: 26px;
-        font-weight: bold;
-        margin-bottom: 10px;
-      }
-
-      .chat-info {
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-      }
-
-      .chat-header p {
-        margin: 5px 0;
-      }
-
-      .chat-header img {
-        border-radius: 10px;
-        margin-top: 10px;
-        border: 2px solid white;
-      }
-
-      .chat-messages {
-        height: 350px;
-        overflow-y: auto;
-        padding: 20px;
-        border-top: 1px solid #eee;
-        display: flex;
         flex-direction: column;
         gap: 10px;
       }
 
-      .chat-message {
-        max-width: 70%;
-        padding: 12px 18px;
-        border-radius: 12px;
-        font-size: 16px;
-        line-height: 1.5;
-        word-wrap: break-word;
-        display: inline-block;
-        animation: slideIn 0.3s forwards;
-      }
-
-      @keyframes slideIn {
-        from {
-          opacity: 0;
-          transform: translateX(10px);
-        }
-
-        to {
-          opacity: 1;
-          transform: translateX(0);
-        }
-      }
-
-      .user-message {
-        background-color: #c7ecee;
-        color: #333;
-        align-self: flex-end;
-        transition: background-color 0.3s;
-      }
-
-      .user-message:hover {
-        background-color: #a5ced1;
-      }
-
-      .ai-message {
-        background-color: #f6f6f6;
-        color: #333;
-        align-self: flex-start;
-        transition: background-color 0.3s;
-      }
-
-      .ai-message:hover {
-        background-color: #e2e2e2;
-      }
-
-      .chat-input {
-        align-items: center;
-        display: flex;
-        padding: 15px;
-        border-top: 1px solid #eee;
-        background-color: #f9f9f9;
-      }
-
-      .chat-input input[type="text"] {
-        max-height: 50px;
-        max-width: 60%;
-        width: 37vw;
-        flex-grow: 1;
-        padding: 12px;
-        border: 1px solid #ccc;
-        border-radius: 25px;
-        outline: none;
-        font-size: 16px;
-        transition: border-color 0.3s;
-      }
-
-      .chat-input input[type="text"]:focus {
-        border-color: #ff4b2b;
-      }
-
-      .chat-input input[type="submit"] {
-        max-height: 50px;
-        max-width: 50px;
-        height: 8vw;
-        width: 8vw;
-        margin-left: 10px;
-
-        background-color: #ff4b2b;
-        color: #fff;
-        border: none;
-        border-radius: 25px;
-        cursor: pointer;
-        font-size: 16px;
-        transition: background-color 0.3s;
-      }
-
-      .chat-input input[type="submit"]:hover {
-        background-color: #ff3a1e;
-      }
-
+      .chat-container,
       .description-container {
-        max-width: 600px;
-        background-color: #fff;
-        border-radius: 15px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-        padding: 20px;
-        animation: fadeIn 0.5s ease-out;
-        overflow-y: auto;
-        max-height: 552px;
+        max-width: 100%;
       }
 
-      .description-header {
-        background: linear-gradient(135deg, #4e54c8, #8f94fb);
-        color: #fff;
-        padding: 15px;
-        border-radius: 10px;
-        text-align: center;
-      }
-
-      .description-header-title {
-        font-size: 20px;
-        font-weight: bold;
-      }
-
-      .description-content {
-        margin-top: 15px;
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-      }
-
-      .description-item {
-        background-color: #f6f6f6;
-        border-left: 4px solid #4e54c8;
-        padding: 12px;
-        border-radius: 8px;
-        font-size: 15px;
-        line-height: 1.4;
-      }
-
-      .attach-button {
-        display: inline-block;
-        padding: 10px 20px;
-        border: none;
-        background: none;
-        border-radius: 5px;
-        cursor: pointer;
-      }
-      /* Эффекты для всех элементов */
-      * {
-        transition: all 0.3s ease;
-      }
-
-      @keyframes recording {
-        0%,
-        100% {
-          background-color: #c0392b;
-        }
-        50% {
-          background-color: #e74c3c;
-        }
-      }
-
-      .voice-record-button.recording {
-        animation: recording 1s infinite;
-      }
-
-      .attach-button:hover::after {
-        content: "Прикрепить файл";
-        position: absolute;
-        bottom: 120%;
-        left: 50%;
-        transform: translateX(-50%);
-        background-color: #333;
-        color: #fff;
-        padding: 5px 10px;
-        border-radius: 5px;
-        font-size: 12px;
-        white-space: nowrap;
-      }
-      @media (max-width: 768px) {
-        .main-container {
-          flex-direction: column;
-          gap: 10px;
-        }
-
-        .chat-container,
-        .description-container {
-          max-width: 100%;
-        }
-
-        .chat-header img,
-        .chat-info img {
-          width: 100%;
-          height: auto;
-        }
-      }
-      .chat-message {
-        animation: popIn 0.5s ease;
-      }
-
-      @keyframes popIn {
-        0% {
-          opacity: 0;
-          transform: scale(0.9);
-        }
-        100% {
-          opacity: 1;
-          transform: scale(1);
-        }
-      }
-
-      .voice-record-button {
-        max-width: 50px;
-        max-height: 50px;
-        height: 8vmin; /* Используем vmin для относительного размера */
-        width: 8vmin; /* Используем vmin для относительного размера */
-        border-radius: 50%; /* Делаем её круглой */
-        background-color: #3b82f6; /* Цвет кнопки */
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin-left: 10px; /* Расстояние от поля ввода */
-        cursor: pointer;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-      }
-
-      .voice-record-button:hover {
-        background-color: #2563eb; /* Цвет при наведении */
-      }
-
-      .voice-record-button img {
-        width: 20px; /* Размер иконки */
-        height: 20px;
-      }
-      .chat-input {
-        flex: 1; /* Занимает всё доступное место */
-        flex-direction: row-reverse;
-        padding: 10px;
-        border: 1px solid #ddd;
-        border-radius: 5px;
-        font-size: 14px;
-      }
-
-      .send-button {
-        padding: 10px 20px;
-        background-color: #f87171;
-        color: white;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-      }
-
-      .send-button:hover {
-        background-color: #ef4444;
-      }
-
-      .text-form {
-        display: flex;
-        flex-direction: row;
-        align-items: center;
+      .chat-header img,
+      .chat-info img {
         width: 100%;
-        gap: 10px;
-      }
-      .chat-message {
-        max-width: 70%;
-        padding: 12px 18px;
-        border-radius: 12px;
-        font-size: 16px;
-        line-height: 1.5;
-        word-wrap: break-word;
-        display: inline-block;
-        animation: slideIn 0.3s forwards;
-        margin-bottom: 10px;
-      }
-
-      @keyframes slideIn {
-        from {
-          opacity: 0;
-          transform: translateX(10px);
-        }
-        to {
-          opacity: 1;
-          transform: translateX(0);
-        }
-      }
-
-      .user-message {
-        background-color: #c7ecee;
-        color: #333;
-        align-self: flex-end;
-      }
-
-      .user-message:hover {
-        background-color: #a5ced1;
-      }
-
-      .ai-message {
-        background-color: #f6f6f6;
-        color: #333;
-        align-self: flex-start;
-      }
-
-      .ai-message:hover {
-        background-color: #e2e2e2;
-      }
-
-      .chat-message img {
-        max-width: 100%;
-        border-radius: 10px;
-        margin-top: 10px;
-        margin-bottom: 10px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-      }
-
-      .chat-message .image-container {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        margin-top: 10px;
-      }
-
-      .chat-message img {
-        max-width: 100%;
         height: auto;
-        object-fit: cover;
-        border-radius: 10px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      }
+    }
+
+    .chat-message {
+      animation: popIn 0.5s ease;
+    }
+
+    @keyframes popIn {
+      0% {
+        opacity: 0;
+        transform: scale(0.9);
       }
 
-      @media (max-width: 768px) {
-        .chat-message {
-          max-width: 90%;
-        }
+      100% {
+        opacity: 1;
+        transform: scale(1);
       }
-    </style>
-  </head>
+    }
 
-  <body>
-    <div class="main-container">
-      <div class="chat-container">
-        <div class="chat-header">
-          <div class="chat-header-title">Информация об отеле</div>
-          <div class="chat-info">
-            {% if map %}
-            <a href="{{ map }}" target="_blank">
-              <img
-                src="{{ static_map }}"
-                alt="Карта"
-                width="400"
-                height="300"
-              />
-            </a>
-            {% endif %} {% if photos %} {% for photo in photos %} {% if photo %}
-            <p><img src="{{ photo }}" alt="Фото" width="150" height="150" /></p>
-            {% endif %} {% endfor %} {% endif %}
-          </div>
+    .voice-record-button {
+      max-width: 50px;
+      max-height: 50px;
+      height: 8vmin;
+      /* Используем vmin для относительного размера */
+      width: 8vmin;
+      /* Используем vmin для относительного размера */
+      border-radius: 50%;
+      /* Делаем её круглой */
+      background-color: #3b82f6;
+      /* Цвет кнопки */
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-left: 10px;
+      /* Расстояние от поля ввода */
+      cursor: pointer;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .voice-record-button:hover {
+      background-color: #2563eb;
+      /* Цвет при наведении */
+    }
+
+    .voice-record-button img {
+      width: 20px;
+      /* Размер иконки */
+      height: 20px;
+    }
+
+    .chat-input {
+      flex: 1;
+      /* Занимает всё доступное место */
+      flex-direction: row-reverse;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      font-size: 14px;
+    }
+
+    .send-button {
+      padding: 10px 20px;
+      background-color: #f87171;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .send-button:hover {
+      background-color: #ef4444;
+    }
+
+    .text-form {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      width: 100%;
+      gap: 10px;
+    }
+
+    .chat-message {
+      max-width: 70%;
+      padding: 12px 18px;
+      border-radius: 12px;
+      font-size: 16px;
+      line-height: 1.5;
+      word-wrap: break-word;
+      display: inline-block;
+      animation: slideIn 0.3s forwards;
+      margin-bottom: 10px;
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateX(10px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    .user-message {
+      background-color: #c7ecee;
+      color: #333;
+      align-self: flex-end;
+    }
+
+    .user-message:hover {
+      background-color: #a5ced1;
+    }
+
+    .ai-message {
+      background-color: #f6f6f6;
+      color: #333;
+      align-self: flex-start;
+    }
+
+    .ai-message:hover {
+      background-color: #e2e2e2;
+    }
+
+    .chat-message img {
+      max-width: 100%;
+      border-radius: 10px;
+      margin-top: 10px;
+      margin-bottom: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .chat-message .image-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-top: 10px;
+    }
+
+    .chat-message img {
+      max-width: 100%;
+      height: auto;
+      object-fit: cover;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    @media (max-width: 768px) {
+      .chat-message {
+        max-width: 90%;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="main-container">
+    <div class="chat-container">
+      <div class="chat-header">
+        <div class="chat-header-title">Информация об отеле</div>
+        <div class="chat-info">
+          {% if map %}
+          <a href="{{ map }}" target="_blank">
+            <img src="{{ static_map }}" alt="Карта" width="400" height="300" />
+          </a>
+          {% endif %} {% if photos %} {% for photo in photos %} {% if photo %}
+          <p><img src="{{ photo }}" alt="Фото" width="150" height="150" /></p>
+          {% endif %} {% endfor %} {% endif %}
         </div>
+      </div>
 
-        <div class="chat-messages">
-          {% for i,item in enumerate(messages) %} {% if item["role"] == "user" %}
-          <div class="chat-message user-message">
-            {% for content in item["content"] %} {% if content["type"] == "text"
-            %} {{ content["text"] }} {% elif content["type"] == "image_url" %}
-            <div class="image-container">
-              <img src="{{ content["image_url"] }}" alt="Фото" />
-            </div>
-            {% endif %} {% endfor %}
-          </div>
-          {% elif item["role"] == "assistant" %}
-          <div class="chat-message ai-message" id="chat-message-{{ i }}">
-            {% for content in item["content"] %} {% if content["type"] == "text"
-            %} {{ content["text"] }} {% elif content["type"] == "image_url" %}
-            <img src="{{ content["image_url"] }}" alt="Фото" width="150"
-            height="150" /> {% endif %} {% endfor %}
+      <div class="chat-messages">
+        {% for i,item in enumerate(messages) %} {% if item["role"] == "user" %}
+        <div class="chat-message user-message">
+          {% for content in item["content"] %} {% if content["type"] == "text"
+          %} {{ content["text"] }} {% elif content["type"] == "image_url" %}
+          <div class="image-container">
+            <img src="{{ content[" image_url"] }}" alt="Фото" />
           </div>
           {% endif %} {% endfor %}
         </div>
-
-        <div class="chat-input">
-          <form action="" method="POST" class="text-form">
-            <input type="text" name="message" placeholder="Введите сообщение" />
-            <input type="submit" value="➜" />
-            <div class="voice-record-button" id="record-button">
-              <img
-                src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGAAAABgCAYAAADimHc4AAAACXBIWXMAAAsTAAALEwEAmpwYAAAEBklEQVR4nO2cy0tXQRTHx8hH0SoKyjQiElctahe0i6CHSgatgqJVlK9oEwlBQa9tEaH0oscmkXamtKmV1V+QEb3sRdlDf1aL1D4xOIJI/mZ+P+915t57PiD8uDgz58z3nplz585cpQRBEARBEARBEAIGWA20AH3AAPDT/A2Ya81AtW87UwewCugExrEzAXQBa3zbnQqAXcAohZMDGnzbn2iANnNHF4su2+rbjyTf+RNz6PzpIkgkFNj5VUUOO/mGo8rY7pa0AVwneq749itJqeZ4DALoOqt8+xc8QCvx0eTbv+ABemMUoMe3f8EDvIhRgAHf/gUP0WY/Mxn17V/wEDO+/QseRAARINMgESACZBokAkSATINEgAiQaZAIEAEyDRIBIkCmQSJABMg0SASIAJkGiQARINMgESACZBokAkSATINEQCSduBg4B7wFfgH9wE7HsrkYNcg52lAHPDa2ax/OaJ9UEgAWAo9m6YB9DuWf+9yaCOyfpexD7ZsKHeBAng74AVSEujkXqACG85S33kDeAW5aOqHOUr6Z+DhsabveUv6GSsHplrOW8tUxHdAYsx3QAM5b6rimQgc4YnGi36GOq0RPp0O7Ty11tKnQATY7nFpc6XAwOxdh5484tKkPBv611LNJhQ5QapnINMcd6tke0VCkBa93aO+EpR7tU6lKAkC3xZk3QJnjebG5HtRucWinHHhnqeuuSgrAHofOOeRYV0ORw9GILeMqMPNqVElB393AkMWh765fNgGWAxdMJuNy19+yjfkz5ptvljo/J2b4mcI8vtvoBUoKqFNPlE3AfeCZOU82an736Dy/kLPAum3ggYOdp1TSMHetXkux0RJwyoz5HtEylUSA0w4OjgN7PdhW5ziknVRJBVgCvHdwckxP3PPc+b8d7BpMzCqoxVkX/pghoSRGW/SYf9S0ZUM/lG1TacB8bsyVPmBFDDZUOk64U1xWacEs89rWWaYzZLKdsohSYv2hv6+4o1/GlKs0YfJt/QRcCIN62UKXLaI9nbK2OzzhzuS16zNE4gBqgE8UzgTwxLzmbATWA0vNulOp+a2v7TZLyk8dFtb+x0dgnUozwNqYv4hSLK+AWpUFdIgXOCfETX8cE3/QmBXIS0UOFVGh274YxWSfWICtZuKbb14CW3z7H9I+omMOL3KiQC/enQQW+fY7OJjMZtpNNhI1H0xKu9S3n0nZ3LUDuOPwXiEfX4Db5vVm+JuqQgRYAGwEDgIdDp3eYf53gy7r2/7UgQXf9qUeRAARINMgESACZBokAkSATINEgHcBcnk0GPZsXvoB7uURoNu3fakHqJ1lL6e+VuPbvkzA5Av3LrMDesRsh5fOFwRBEARBEARBEARBEFTI/AMrGyLZUgg5RgAAAABJRU5ErkJggg=="
-                alt="microphone"
-              />
-            </div>
-          </form>
-
-          <form
-            id="upload-form"
-            action="/attach_file"
-            class="attach-button"
-            method="post"
-            enctype="multipart/form-data"
-          >
-            <input
-              type="file"
-              id="file-input"
-              name="file"
-              accept="image/*"
-              style="display: none"
-              multiple
-            />
-            <div
-              id="upload-button"
-              onclick="document.getElementById('file-input').click();"
-            >
-              <svg
-                id="screpochka"
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="gray"
-                stroke-width="1.5"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                class="lucide lucide-paperclip mt-0.5 h-5 w-5"
-              >
-                <path
-                  d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48"
-                ></path>
-              </svg>
-            </div>
-          </form>
+        {% elif item["role"] == "assistant" %}
+        <div class="chat-message ai-message" id="chat-message-{{ i }}">
+          {% for content in item["content"] %} {% if content["type"] == "text"
+          %} {{ content["text"] }} {% elif content["type"] == "image_url" %}
+          <img src="{{ content[" image_url"] }}" alt="Фото" width="150" height="150" /> {% endif %} {% endfor %}
         </div>
+        {% endif %} {% endfor %}
       </div>
 
-      <div class="description-container">
-        <div class="description-header">
-          <div class="description-header-title">Полученные описания</div>
-        </div>
-        <div class="description-content">
-          {% for i,item in enumerate(ai_messages) %}
+      <div class="chat-input">
+        <form action="" method="POST" class="text-form">
+          <input type="text" name="message" placeholder="Введите сообщение" />
+          <input type="submit" value="➜" />
+          <div class="voice-record-button" id="record-button">
+            <img
+              src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGAAAABgCAYAAADimHc4AAAACXBIWXMAAAsTAAALEwEAmpwYAAAEBklEQVR4nO2cy0tXQRTHx8hH0SoKyjQiElctahe0i6CHSgatgqJVlK9oEwlBQa9tEaH0oscmkXamtKmV1V+QEb3sRdlDf1aL1D4xOIJI/mZ+P+915t57PiD8uDgz58z3nplz585cpQRBEARBEARBEAIGWA20AH3AAPDT/A2Ya81AtW87UwewCugExrEzAXQBa3zbnQqAXcAohZMDGnzbn2iANnNHF4su2+rbjyTf+RNz6PzpIkgkFNj5VUUOO/mGo8rY7pa0AVwneq749itJqeZ4DALoOqt8+xc8QCvx0eTbv+ABemMUoMe3f8EDvIhRgAHf/gUP0WY/Mxn17V/wEDO+/QseRAARINMgESACZBokAkSATINEgAiQaZAIEAEyDRIBIkCmQSJABMg0SASIAJkGiQARINMgESACZBokAkSATINEQCSduBg4B7wFfgH9wE7HsrkYNcg52lAHPDa2ax/OaJ9UEgAWAo9m6YB9DuWf+9yaCOyfpexD7ZsKHeBAng74AVSEujkXqACG85S33kDeAW5aOqHOUr6Z+DhsabveUv6GSsHplrOW8tUxHdAYsx3QAM5b6rimQgc4YnGi36GOq0RPp0O7Ty11tKnQATY7nFpc6XAwOxdh5484tKkPBv611LNJhQ5QapnINMcd6tke0VCkBa93aO+EpR7tU6lKAkC3xZk3QJnjebG5HtRucWinHHhnqeuuSgrAHofOOeRYV0ORw9GILeMqMPNqVElB393AkMWh765fNgGWAxdMJuNy19+yjfkz5ptvljo/J2b4mcI8vtvoBUoKqFNPlE3AfeCZOU82an736Dy/kLPAum3ggYOdp1TSMHetXkux0RJwyoz5HtEylUSA0w4OjgN7PdhW5ziknVRJBVgCvHdwckxP3PPc+b8d7BpMzCqoxVkX/pghoSRGW/SYf9S0ZUM/lG1TacB8bsyVPmBFDDZUOk64U1xWacEs89rWWaYzZLKdsohSYv2hv6+4o1/GlKs0YfJt/QRcCIN62UKXLaI9nbK2OzzhzuS16zNE4gBqgE8UzgTwxLzmbATWA0vNulOp+a2v7TZLyk8dFtb+x0dgnUozwNqYv4hSLK+AWpUFdIgXOCfETX8cE3/QmBXIS0UOFVGh274YxWSfWICtZuKbb14CW3z7H9I+omMOL3KiQC/enQQW+fY7OJjMZtpNNhI1H0xKu9S3n0nZ3LUDuOPwXiEfX4Db5vVm+JuqQgRYAGwEDgIdDp3eYf53gy7r2/7UgQXf9qUeRAARINMgESACZBokAkSATINEgHcBcnk0GPZsXvoB7uURoNu3fakHqJ1lL6e+VuPbvkzA5Av3LrMDesRsh5fOFwRBEARBEARBEARBEFTI/AMrGyLZUgg5RgAAAABJRU5ErkJggg=="
+              alt="microphone" />
+          </div>
+        </form>
 
-          <div id="ai-content-{{ i }}" class="description-item"></div>
-
-          {% endfor %}
-        </div>
+        <form id="upload-form" action="/attach_file" class="attach-button" method="post" enctype="multipart/form-data">
+          <input type="file" id="file-input" name="file" accept="image/*" style="display: none" multiple />
+          <div id="upload-button" onclick="document.getElementById('file-input').click();">
+            <svg id="screpochka" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+              fill="none" stroke="gray" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
+              class="lucide lucide-paperclip mt-0.5 h-5 w-5">
+              <path
+                d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48">
+              </path>
+            </svg>
+          </div>
+        </form>
       </div>
     </div>
-  </body>
-  <script>
-    let isRecording = false;
-    let mediaRecorder;
-    let audioChunks = [];
 
-    document.getElementById("record-button").onclick = async () => {
-      const recordButton = document.getElementById("record-button");
-      const recordStatus = document.getElementById("record-status");
+    <div class="description-container">
+      <div class="description-header">
+        <div class="description-header-title">Полученные описания</div>
+        
+      </div>
+      <div class="description-tabs" id="description-tabs">
+        <!-- Вкладки будут добавлены здесь -->
+      </div>
+      <div class="description-content" id="description-content">
+        <!-- Содержимое вкладок будет добавлено здесь -->
+      </div>
+    </div>
+  </div>
+</body>
+<script>
+  let isRecording = false;
+  let mediaRecorder;
+  let audioChunks = [];
 
-      if (!isRecording) {
-        const stream = await navigator.mediaDevices.getUserMedia({
-          audio: true,
-        });
-        mediaRecorder = new MediaRecorder(stream);
-        mediaRecorder.start();
-        audioChunks = [];
+  document.getElementById("record-button").onclick = async () => {
+    const recordButton = document.getElementById("record-button");
 
-        mediaRecorder.ondataavailable = (event) => audioChunks.push(event.data);
+    if (!isRecording) {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      mediaRecorder = new MediaRecorder(stream);
+      mediaRecorder.start();
+      audioChunks = [];
 
-        isRecording = true;
-        recordButton.style.backgroundColor = "#c0392b";
-      } else {
-        mediaRecorder.stop();
-        mediaRecorder.onstop = () => {
-          const audioBlob = new Blob(audioChunks);
-          const formData = new FormData();
-          formData.append("audio", audioBlob, "message.wav");
+      mediaRecorder.ondataavailable = (event) => audioChunks.push(event.data);
 
-          fetch("/upload", {
-            method: "POST",
-            body: formData,
+      isRecording = true;
+      recordButton.style.backgroundColor = "#c0392b";
+    } else {
+      mediaRecorder.stop();
+      mediaRecorder.onstop = () => {
+        console.log("Recording stopped");
+        const audioBlob = new Blob(audioChunks);
+        const formData = new FormData();
+        formData.append("audio", audioBlob, "message.wav");
+
+        fetch("/upload", {
+          method: "POST",
+          body: formData,
+        })
+          .then(response => response.text())
+          .then(data => {
+            console.log(data); // Обработка ответа от сервера
+          })
+          .catch(error => {
+            console.error("Error:", error);
           });
 
-          audioChunks = [];
-        };
+        audioChunks = [];
+      };
 
-        isRecording = false;
-        recordButton.style.backgroundColor = "#4e54c8";
-      }
-    };
-  </script>
-  <script>
-    const fileInput = document.getElementById("file-input");
+      isRecording = false;
+      recordButton.style.backgroundColor = "#4e54c8";
+    }
+  };
+</script>
 
-    fileInput.addEventListener("change", () => {
-      const files = event.target.files;
-      console.log(files);
+<script>
+  const fileInput = document.getElementById("file-input");
 
-      if (files.length > 5) {
-        alert("Вы можете прикрепить максимум 5 файлов!");
-        return;
-      }
+  fileInput.addEventListener("change", () => {
+    const files = event.target.files;
+    console.log(files);
 
-      document.getElementById("upload-form").submit();
+    if (files.length > 5) {
+      alert("Вы можете прикрепить максимум 5 файлов!");
+      return;
+    }
+
+    document.getElementById("upload-form").submit();
+  });
+</script>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script>
+  let ai_messages = {{ ai_messages | safe }}
+  let descriptionTabs = document.getElementById('description-tabs');
+  let descriptionContent = document.getElementById('description-content');
+
+  ai_messages.forEach((item, i) => {
+    // Создаем вкладку
+    let tab = document.createElement('div');
+    tab.classList.add('description-tab');
+    tab.innerText = `${i + 1}`;
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.description-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      document.querySelectorAll('.description-item').forEach(c => c.style.display = 'none');
+      document.getElementById(`ai-content-${i}`).style.display = 'block';
     });
-  </script>
-  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-  <script>
-    let ai_messages = {{ ai_messages | safe }}
-    ai_messages.forEach((item, i) => {
-      document.getElementById('ai-content-' + i).innerHTML =
-        marked.parse(item);
-    });
-  </script>
-  <script>
-    let chat_messages = {{ messages | safe }}
-    chat_messages.forEach((item, i) => {
-      document.getElementById('chat-message-' + i).innerHTML =
-        marked.parse(item);
-    });
-  </script>
+    descriptionTabs.appendChild(tab);
+
+    // Создаем содержимое вкладки
+    let content = document.createElement('div');
+    content.id = `ai-content-${i}`;
+    content.classList.add('description-item');
+    content.style.display = i === 0 ? 'block' : 'none';
+    content.innerHTML = marked.parse(item);
+    descriptionContent.appendChild(content);
+  });
+
+  // Активируем первую вкладку
+  if (descriptionTabs.firstChild) {
+    descriptionTabs.firstChild.classList.add('active');
+  }
+</script>
+<script>
+  let chat_messages = {{ messages | safe }}
+  chat_messages.forEach((item, i) => {
+    document.getElementById('chat-message-' + i).innerHTML =
+      marked.parse(item);
+  });
+</script>
+
 </html>
 {% endblock %}
