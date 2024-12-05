@@ -1,6 +1,6 @@
 import whisper
 
-model = whisper.load_model("tiny")
+model = whisper.load_model("small")
 
 def transcribe(audio_path):
     if not audio_path:
