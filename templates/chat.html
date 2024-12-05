@@ -374,14 +374,14 @@
           <div class="chat-message user-message">
             {% for content in item["content"] %} {% if content["type"] == "text"
             %} {{ content["text"] }} {% elif content["type"] == "image_url" %}
-            <img src="{{ content[" image_url"] }}" alt="Фото" width="150"
+            <img src="{{ content["image_url"] }}" alt="Фото" width="150"
             height="150" /> {% endif %} {% endfor %}
           </div>
           {% elif item["role"] == "assistant" %}
           <div class="chat-message ai-message">
             {% for content in item["content"] %} {% if content["type"] == "text"
             %} {{ content["text"] }} {% elif content["type"] == "image_url" %}
-            <img src="{{ content[" image_url"] }}" alt="Фото" width="150"
+            <img src="{{ content["image_url"] }}" alt="Фото" width="150"
             height="150" /> {% endif %} {% endfor %}
           </div>
           {% endif %} {% endfor %}

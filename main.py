@@ -10,8 +10,9 @@ import datetime
 import os
 from data.startform import StartForm
 from map.map import make_href_for_cords, find_cords, make_static_map
-
+import requests
 import logging
+from ai.voice import transcribe
 
 logger = logging.getLogger(__name__)
 
@@ -286,21 +287,51 @@ def page_not_found(e):
 @app.route("/deletesession")
 def deletesession():
     try:
+        # app.logger.debug((session["uid"]))
+        shutil.rmtree(f"./static/audio/{session['uid']}")
+    except Exception as e:
+        app.logger.debug((e))
+    try:
+        app.logger.debug((session["uid"]))
         shutil.rmtree(f"./static/photos/{session['uid']}")
-    except Exception:
-        pass
+    except Exception as e:
+        app.logger.debug((e))
     session.clear()
     return redirect("/start")
 
 
+@app.route("/refresh")
+def refresh():
+    return redirect("/chat")
+
+
 @app.route("/upload", methods=["POST"])
 def upload():
+    session.modified = True
+    if "description" not in session:
+        session["description"] = ""
+    if "lat" not in session:
+        session["lat"] = None
+    if "lon" not in session:
+        session["lon"] = None
+    if "address" not in session:
+        session["address"] = "Нет адреса"
+    if "uploaded_data_file_path" not in session:
+        session["uploaded_data_file_path"] = []
+    if "ai_messages" not in session:
+        session["ai_messages"] = (
+            [] + [session["description"]]
+        )  # список сообщений от ассистента --------------------<<<<<< ДОБАВИТЬ НАДО СЮДА ТОЖЕ
+    if "old_fp" not in session:
+        session["old_fp"] = []
     if "audio" not in request.files:
         return "Нет файла", 400
     if "uploaded_audio_file_path" not in session:
         session["uploaded_audio_file_path"] = []
     audio_file = request.files["audio"]
+
     newpath = f"./static/audio/{session['uid']}/"
+
     if not os.path.exists(newpath):
         os.makedirs(newpath)
     allpath = (
@@ -308,17 +339,38 @@ def upload():
         + str(len(session["uploaded_audio_file_path"]) + 1)
         + "."
         + audio_file.filename.split(".")[-1]
-    )
+    ).strip()
+    print(allpath)
     audio_file.save(allpath)
+    text_from_audio = transcribe(allpath)
 
-    session["uploaded_audio_file_path"].append(os.path.join(allpath))
-    
+    print(text_from_audio)
+
+    session["uploaded_audio_file_path"].append(allpath)
+
     ### ADD AUDIO MESSAGE TO CHAT MESSAGES
     ### session[""]
-    
-    session.modified = True
-    
-    return redirect("/chat")
+    new_photos = list(set(session["uploaded_data_file_path"]) - set(session["old_fp"]))
+
+    session["old_fp"] = session["uploaded_data_file_path"]
+
+    if new_photos != []:
+        content = [{"type": "text", "text": str(text_from_audio)}]
+
+        for photo in new_photos:
+            content.append({"type": "image_url", "image_url": photo})
+
+        session["messages"].append({"role": "user", "content": content})
+    else:
+        session["messages"].append(
+            {
+                "role": "user",
+                "content": [{"type": "text", "text": str(text_from_audio)}],
+            }
+        )
+
+    pipeline_ai()
+    return redirect("/refresh")
 
 
 @app.route("/attach_file", methods=["GET", "POST"])
