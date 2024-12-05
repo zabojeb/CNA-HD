@@ -13,125 +13,183 @@
         }
 
         body {
-            font-family: 'Roboto', sans-serif;
+            font-family: 'MTS Compact', sans-serif;
             color: #333;
-            overflow-x: hidden;
+            background-color: #EBEBEB;
+            min-height: 100vh;
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
         }
 
-        /* Фоновое изображение и центрирование контента */
-        .hero-section {
+        .container {
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            width: 90%;
+            max-width: 1200px;
+            margin-left: 5%;
+            gap: 20px;
+            flex-wrap: wrap; /* Для адаптации на узких экранах */
+        }
+
+        .left-section {
+            flex: 1;
             display: flex;
             flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background: url('/static/index_bg.png') no-repeat center center/cover;
-            text-align: center;
+            gap: 25px;
+            max-width: 500px;
+        }
+
+        .left-section .title {
+            font-size: 2.2rem;
+            font-weight: bold;
             color: #fff;
-            position: relative;
+            background-color: #ff0033;
+            padding: 15px 25px;
+            border-radius: 25px;
+            display: inline-block;
+            width: 100%;
+            text-align: center;
         }
 
-        /* Темный полупрозрачный фон для текста */
-        .overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: rgba(0, 0, 0, 0.5);
-            z-index: 1;
+        .left-section .text {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #333;
+            background-color: #fff;
+            padding: 20px 30px;
+            border-radius: 15px;
+            display: inline-block;
+            width: 100%;
+            text-align: center;
+            margin-bottom: 60%;
         }
 
-        /* Основное содержимое */
-        .content {
-            z-index: 2;
-            max-width: 700px;
-            padding: 20px;
-            animation: fadeIn 2s ease-in-out;
+        .left-section .text span {
+            margin: 0 5px;
+            color: #ff0033;
+            font-size: 2.2rem;
+            vertical-align: middle;
         }
 
-        h1 {
-            font-size: 3rem;
-            margin-bottom: 20px;
-            animation: slideInDown 1s ease-in-out;
-        }
-
-        p {
-            font-size: 1.2rem;
-            line-height: 1.6;
-            margin-bottom: 30px;
-            animation: fadeIn 1.5s ease-in-out;
-        }
-
-        /* Кнопка */
         .start-button {
             display: inline-block;
-            padding: 15px 30px;
-            font-size: 1.2rem;
+            padding: 20px 50px;
+            font-size: 1.6rem;
+            font-weight: bold;
             color: #fff;
-            background-color: #ff0000;
+            background-color: #ff0033;
             border: none;
             border-radius: 25px;
             text-decoration: none;
             cursor: pointer;
-            transition: transform 0.3s, background-color 0.3s;
-            animation: bounceIn 1.5s ease-in-out;
-            font-family: 'Roboto', sans-serif;
-            font-weight: 1000;
+            transition: background-color 0.3s, transform 0.3s;
+            width: 100%;
+            text-align: center;
         }
 
         .start-button:hover {
-            background-color: #ff4d4d;
+            background-color: #ff3366;
             transform: translateY(-3px);
         }
 
-        /* Анимации */
-        @keyframes fadeIn {
-            0% {
-                opacity: 0;
+        .right-section {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .right-section img {
+            max-height: 70vh; /* Ограничиваем высоту картинки */
+            width: auto;
+            object-fit: contain;
+        }
+
+        /* Адаптивный дизайн */
+        @media (max-width: 1024px) {
+            .container {
+                flex-direction: column; /* Размещаем элементы в столбик */
+                align-items: center;
             }
-            100% {
-                opacity: 1;
+
+            .left-section {
+                max-width: 90%; /* Уменьшаем ширину текстового блока */
+            }
+
+            .left-section .title {
+                font-size: 1.8rem; /* Уменьшаем шрифт заголовка */
+            }
+
+            .left-section .text {
+                font-size: 1.6rem; /* Уменьшаем шрифт текста */
+            }
+
+            .start-button {
+                font-size: 1.4rem; /* Уменьшаем шрифт кнопки */
             }
         }
 
-        @keyframes slideInDown {
-            0% {
-                transform: translateY(-50px);
-                opacity: 0;
+        @media (max-width: 768px) {
+            .left-section .title {
+                font-size: 1.5rem;
+                padding: 10px 20px; /* Сокращаем отступы */
             }
-            100% {
-                transform: translateY(0);
-                opacity: 1;
+
+            .left-section .text {
+                font-size: 1.4rem;
+                padding: 15px 20px; /* Сокращаем отступы */
+            }
+
+            .start-button {
+                font-size: 1.2rem;
+                padding: 15px 30px; /* Уменьшаем кнопку */
+            }
+
+            .right-section img {
+                max-height: 40vh; /* Уменьшаем изображение */
             }
         }
 
-        @keyframes bounceIn {
-            0% {
-                transform: scale(0.5);
-                opacity: 0;
+        @media (max-width: 480px) {
+            .left-section {
+                max-width: 100%; /* Элементы занимают всю ширину */
             }
-            80% {
-                transform: scale(1.05);
+
+            .left-section .title {
+                font-size: 1.2rem;
             }
-            100% {
-                transform: scale(1);
-                opacity: 1;
+
+            .left-section .text {
+                font-size: 1.2rem;
+            }
+
+            .start-button {
+                font-size: 1rem;
+                padding: 10px 20px;
+            }
+
+            .right-section img {
+                max-height: 30vh; /* Еще меньше изображение */
             }
         }
     </style>
 </head>
 
 <body>
-    <section class="hero-section">
-        <div class="overlay"></div>
-        <div class="content">
-            <h1>Генерируйте волшебные описания отелей с помощником!</h1>
-            <p>Это инновационная платформа, созданная для общения с ИИ-помощником для генерации описаний отелей от МТС и ФКН ВШЭ. 
-            Откройте для себя возможности нового уровня коммуникации и получите уникальное описание для вашего отеля прямо здесь и сейчас.</p>
-            <a href="/start" class="start-button">Начать</a>
+    <div class="container">
+        <div class="left-section">
+            <div class="title">MTC True Bro</div>
+            <div class="text">
+                ОЖИВИТЕ ТЕКСТ
+            </div>
+            <a href="/start" class="start-button">НАЧАТЬ</a>
         </div>
-    </section>
+        <div class="right-section">
+            <img src="/static/index_bg2.png" alt="Иллюстрация">
+        </div>
+    </div>
 </body>
 
 </html>
