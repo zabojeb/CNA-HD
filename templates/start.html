@@ -11,7 +11,7 @@
 
         body {
             font-family: 'Roboto', sans-serif;
-            background-color: #f0f4f8;
+            background-color: #EBEBEB;
             padding: 20px;
             display: flex;
             justify-content: center;
@@ -31,15 +31,21 @@
         }
 
         @keyframes fadeScale {
-            from { opacity: 0; transform: scale(0.9); }
-            to { opacity: 1; transform: scale(1); }
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
         }
 
         h1 {
-            color: #ff416c;
-            font-size: 28px;
+            color: #ff0033;
+            font-size: 24px;
             margin-bottom: 20px;
-            font-weight: 700;
+            font-weight: bold;
         }
 
         p.subtitle {
@@ -71,36 +77,52 @@
         }
 
         .form-control:focus {
-            border-color: #ff416c;
-            box-shadow: 0 0 8px rgba(255, 65, 108, 0.2);
+            border-color: #ff0033;
+            box-shadow: 0 0 8px rgba(255, 0, 51, 0.2);
             outline: none;
         }
 
-        input[type="submit"] {
-            width: 100%;
-            background-color: #e30613;
-            color: white;
-            padding: 12px;
+        .start-button,
+        .btn-chat {
+            display: inline-block;
+            padding: 15px 30px;
             font-size: 16px;
             font-weight: bold;
+            color: #fff;
+            background-color: #ff0033;
             border: none;
-            border-radius: 6px;
+            border-radius: 25px;
+            text-decoration: none;
             cursor: pointer;
-            transition: background-color 0.3s;
-        }
-
-        input[type="submit"]:hover {
-            background-color: #c30411;
-        }
-
-        .btn-chat {
-            background-color: #ff416c;
+            transition: background-color 0.3s, transform 0.3s;
+            width: 100%;
+            text-align: center;
             margin-bottom: 15px;
+        }
+
+        .start-button:hover,
+        .btn-chat:hover {
+            background-color: #ff3366;
+            transform: translateY(-3px);
+        }
+
+        .btn-primary {
+            display: inline-block;
+            width: 100%;
+            padding: 15px 30px;
+            font-size: 16px;
+            font-weight: bold;
+            color: #fff;
+            background-color: #ff0033;
+            border: none;
+            border-radius: 25px;
+            text-align: center;
+            cursor: pointer;
             transition: background-color 0.3s, transform 0.3s;
         }
 
-        .btn-chat:hover {
-            background-color: #e30613;
+        .btn-primary:hover {
+            background-color: #ff3366;
             transform: translateY(-3px);
         }
 
@@ -125,9 +147,8 @@
                 {{ form.description.label }}
                 {{ form.description(class="form-control", type="text") }}
             </div>
-            
-            <div class="form-group">
 
+            <div class="form-group">
                 {{ form.address.label }}
                 {{ form.address(class="form-control", type="text") }}
             </div>
@@ -136,7 +157,7 @@
                 {{ form.photo(class="form-control", type="file") }}
             </div>
             <div class="form-group">
-                {{ form.submit(type="submit", class="btn btn-primary") }}
+                {{ form.submit(type="submit", class="btn-primary") }}
             </div>
         </form>
     </div>
