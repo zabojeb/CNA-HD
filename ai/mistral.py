@@ -9,12 +9,14 @@ DESCRIPTION_MODEL = "mistral-large-latest"
 
 MISTRAL_API_KEY = os.getenv("MISTRAL_API_KEY")
 
+FULL_PROMPT = open("./ai/prompt.txt", "r", encoding="utf-8").read()
+
 
 def encode_image(image_path):
     """Encode the image to base64."""
     try:
         with open(image_path, "rb") as image_file:
-            return base64.b64encode(image_file.read()).decode('utf-8')
+            return base64.b64encode(image_file.read()).decode("utf-8")
     except FileNotFoundError:
         print(f"Error: The file {image_path} was not found.")
         return None
@@ -30,7 +32,10 @@ def process_message(session):
         if message["role"] == "user":
             for j, content in enumerate(message["content"]):
                 if content["type"] == "image_url":
-                    messages[i]["content"][j]["image_url"] = "data:image/jpeg;base64," + encode_image(messages[i]["content"][j]["image_url"])
+                    messages[i]["content"][j]["image_url"] = (
+                        "data:image/jpeg;base64,"
+                        + encode_image(messages[i]["content"][j]["image_url"])
+                    )
 
     description = session["description"]
     address = session["address"]
@@ -52,12 +57,17 @@ def process_message(session):
           3. Особенности
           4. Фотографии отеля
           5. Другое
-
+          
+          Придерживайся этого плана:
+          {FULL_PROMPT}
+          
+          НИ В КОЕМ СЛУЧАЕ НЕ ПИШИ ОПИСАНИЕ ОТЕЛЯ В СООБЩЕНИЯ!!! ПИШИ ЕГО С ПОМОЩЬЮ ТВОЕЙ ФУНКЦИИ!!!
+          
           Стартовое описание отеля, предоставленное пользователем:
           {description}
-          """
+          """,
             }
-        ]
+        ],
     }
 
     client = Mistral(
@@ -67,25 +77,25 @@ def process_message(session):
     completion = client.chat.complete(
         model=CHAT_MODEL,
         messages=[system_message] + messages,
-        tools=[{
-            "type": "function",
-            "function": {
-                "name": "generate_description",
-                "description": "Сгенерировать описание для отеля на основе новой полученной информации. Вызывай эту функцию ТОЛЬКО когда пользователь добавил новые данные или когда попросил изменить описание.",
-                "parameters": {
-                    "type": "object",
-                    "properties": {
-                        "info": {
-                            "type": "string",
-                            "description": "Информация об отеле. Название, описание, услуги, любая информация, пожелания и тд. Включи сюда также пожелания пользователя об описании."
+        tools=[
+            {
+                "type": "function",
+                "function": {
+                    "name": "generate_description",
+                    "description": "Сгенерировать описание для отеля на основе новой полученной информации.",
+                    "parameters": {
+                        "type": "object",
+                        "properties": {
+                            "info": {
+                                "type": "string",
+                                "description": "Информация об отеле. Название, описание, услуги, любая информация, пожелания и тд. Включи сюда также пожелания пользователя об описании.",
+                            },
                         },
+                        "required": ["info"],
                     },
-                    "required": [
-                        "info"
-                    ]
-                }
+                },
             }
-        }],
+        ],
     )
 
     time.sleep(1)
@@ -96,12 +106,13 @@ def process_message(session):
 
 
 def generate_description(info):
-    messages = [{
-        "role": "system",
-        "content": [
-            {
-                "type": "text",
-                "text": f"""
+    messages = [
+        {
+            "role": "system",
+            "content": [
+                {
+                    "type": "text",
+                    "text": f"""
           Ты - опытный специалист в сфере жилья и отелей.
           Твоя задача - составить хорошее привлекательное завлекающее описание отеля.
           Тебе будет предоставлено описание и вся нужная информация об отеле пользователя.
@@ -112,21 +123,18 @@ def generate_description(info):
           3. Особенности
           4. Фотографии отеля
           5. Другое
-
+          
+          При генерации придерживайся этого плана:
+          {FULL_PROMPT}
+          
+          ИСПОЛЬЗУЙ ВСЕ ВОЗМОЖНОСТИ РАЗМЕТКИ MARKDOWN
+          
           Стартовое описание отеля, предоставленное пользователем и его пожелания:
-          """
-            }
-        ]
-    },
-        {
-        "role": "user",
-        "content": [
-            {
-                "type": "text",
-                "text": info
-            }
-        ]
-    }
+          """,
+                }
+            ],
+        },
+        {"role": "user", "content": [{"type": "text", "text": info}]},
     ]
 
     client = Mistral(

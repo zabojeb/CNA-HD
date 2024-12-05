@@ -182,6 +182,8 @@
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
         padding: 20px;
         animation: fadeIn 0.5s ease-out;
+        overflow-y: auto;
+        max-height: 552px;
       }
 
       .description-header {
@@ -434,7 +436,7 @@
         </div>
 
         <div class="chat-messages">
-          {% for item in messages %} {% if item["role"] == "user" %}
+          {% for i,item in enumerate(messages) %} {% if item["role"] == "user" %}
           <div class="chat-message user-message">
             {% for content in item["content"] %} {% if content["type"] == "text"
             %} {{ content["text"] }} {% elif content["type"] == "image_url" %}
@@ -444,7 +446,7 @@
             {% endif %} {% endfor %}
           </div>
           {% elif item["role"] == "assistant" %}
-          <div class="chat-message ai-message">
+          <div class="chat-message ai-message" id="chat-message-{{ i }}">
             {% for content in item["content"] %} {% if content["type"] == "text"
             %} {{ content["text"] }} {% elif content["type"] == "image_url" %}
             <img src="{{ content["image_url"] }}" alt="Фото" width="150"
@@ -581,6 +583,13 @@
     let ai_messages = {{ ai_messages | safe }}
     ai_messages.forEach((item, i) => {
       document.getElementById('ai-content-' + i).innerHTML =
+        marked.parse(item);
+    });
+  </script>
+  <script>
+    let chat_messages = {{ messages | safe }}
+    chat_messages.forEach((item, i) => {
+      document.getElementById('chat-message-' + i).innerHTML =
         marked.parse(item);
     });
   </script>
