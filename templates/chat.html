@@ -464,7 +464,7 @@
           {% for content in item["content"] %} {% if content["type"] == "text"
           %} {{ content["text"] }} {% elif content["type"] == "image_url" %}
           <div class="image-container">
-            <img src="{{ content[" image_url"] }}" alt="Фото" />
+            <img src="{{ content["image_url"] }}" alt="Фото" />
           </div>
           {% endif %} {% endfor %}
         </div>
@@ -472,17 +472,9 @@
         <div class="chat-message ai-message" id="chat-message-{{ i }}">
           {% for content in item["content"] %} {% if content["type"] == "text"
           %} {{ content["text"] }} {% elif content["type"] == "image_url" %}
-          <img src="{{ content[" image_url"] }}" alt="Фото" width="150" height="150" /> {% endif %} {% endfor %}
+          <img src="{{ content["image_url"] }}" alt="Фото" width="150" height="150" /> {% endif %} {% endfor %}
 
         </div>
-        {% endif %} {% endfor %}
-      </div>
-      {% elif item["role"] == "assistant" %}
-      <div class="chat-message ai-message">
-        {% for content in item["content"] %} {% if content["type"] == "text"
-        %} {{ content["text"] }} {% elif content["type"] == "image_url" %}
-        <img src="{{ content[" image_url"] }}" alt="Фото" width="150" height="150" /> {% endif %} {% endfor %}
-      </div>
       {% endif %} {% endfor %}
     </div>
 

@@ -11,3 +11,4 @@ itertools
 datetime
 mistralai
 whisper
+flask_session
