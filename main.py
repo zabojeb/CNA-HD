@@ -307,6 +307,7 @@ def refresh():
 
 @app.route("/upload", methods=["POST"])
 def upload():
+    session['url'] = url_for('upload')
     session.modified = True
     if "description" not in session:
         session["description"] = ""
