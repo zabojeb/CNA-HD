@@ -13,7 +13,8 @@ from map.map import make_href_for_cords, find_cords, make_static_map
 import requests
 import logging
 from ai.voice import transcribe
-import time
+
+from flask_session import Session
 
 logger = logging.getLogger(__name__)
 
@@ -28,10 +29,21 @@ elif INFERENCE_TYPE == "HUGGINGFACE":
 DEBUG = True
 
 app = Flask(__name__)
+
 app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")
 UPLOAD_FOLDER = os.path.join("staticFiles", "uploads")
+
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 
+# Настройка Flask-Session
+app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "your_secret_key")
+app.config["SESSION_TYPE"] = "filesystem"  # Хранение сессий в файловой системе
+app.config["SESSION_FILE_DIR"] = os.path.join(os.getcwd(), "flask_session")  # Директория для файлов сессий
+app.config["SESSION_PERMANENT"] = False
+app.config["SESSION_USE_SIGNER"] = True
+
+# Инициализация Flask-Session
+Session(app)
 
 def pipeline_ai():
     response = process_message(session)
@@ -112,8 +124,8 @@ def chat():
         session["uploaded_data_file_path"] = []
     if "ai_messages" not in session:
         session["ai_messages"] = [
-            "Здесь будут описания"
-        ]  # список сообщений от ассистента --------------------<<<<<< ДОБАВИТЬ НАДО СЮДА ТОЖЕ
+            "Здесь будут описания"]
+
     if "old_fp" not in session:
         session["old_fp"] = []
 

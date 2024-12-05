@@ -169,3 +169,4 @@ cython_debug/
 
 /static/photos
 /static/audio
+.flask_session

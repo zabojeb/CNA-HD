@@ -5,7 +5,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  
+
   <title>Чат</title>
   <style>
     @import url("https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap");
@@ -268,6 +268,15 @@
       .chat-container,
       .description-container {
         max-width: 100%;
+        max-width: 600px;
+        background-color: #fff;
+        border-radius: 15px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        padding: 20px;
+        animation: fadeIn 0.5s ease-out;
+        overflow-y: auto;
+        max-height: 552px;
+       
       }
 
       .chat-header img,
@@ -436,7 +445,7 @@
       <div class="chat-header">
         <div class="chat-header-title">Информация об отеле</div>
         <div class="chat-info">
-          
+
           {% if map %}
           <p>Карта</p>
           <a href="{{ map }}" target="_blank">
@@ -448,8 +457,9 @@
         </div>
       </div>
 
+
       <div class="chat-messages">
-        {% for item in messages %} {% if item["role"] == "user" %}
+        {% for i,item in enumerate(messages) %} {% if item["role"] == "user" %}
         <div class="chat-message user-message">
           {% for content in item["content"] %} {% if content["type"] == "text"
           %} {{ content["text"] }} {% elif content["type"] == "image_url" %}
@@ -459,52 +469,61 @@
           {% endif %} {% endfor %}
         </div>
         {% elif item["role"] == "assistant" %}
-        <div class="chat-message ai-message">
+        <div class="chat-message ai-message" id="chat-message-{{ i }}">
           {% for content in item["content"] %} {% if content["type"] == "text"
           %} {{ content["text"] }} {% elif content["type"] == "image_url" %}
           <img src="{{ content[" image_url"] }}" alt="Фото" width="150" height="150" /> {% endif %} {% endfor %}
+
         </div>
         {% endif %} {% endfor %}
       </div>
-
-      <div class="chat-input">
-        <form action="" method="POST" class="text-form">
-          <input type="text" name="message" placeholder="Введите сообщение" />
-          <input type="submit" value="➜" />
-          <div class="voice-record-button" id="record-button">
-            <img
-              src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGAAAABgCAYAAADimHc4AAAACXBIWXMAAAsTAAALEwEAmpwYAAAEBklEQVR4nO2cy0tXQRTHx8hH0SoKyjQiElctahe0i6CHSgatgqJVlK9oEwlBQa9tEaH0oscmkXamtKmV1V+QEb3sRdlDf1aL1D4xOIJI/mZ+P+915t57PiD8uDgz58z3nplz585cpQRBEARBEARBEAIGWA20AH3AAPDT/A2Ya81AtW87UwewCugExrEzAXQBa3zbnQqAXcAohZMDGnzbn2iANnNHF4su2+rbjyTf+RNz6PzpIkgkFNj5VUUOO/mGo8rY7pa0AVwneq749itJqeZ4DALoOqt8+xc8QCvx0eTbv+ABemMUoMe3f8EDvIhRgAHf/gUP0WY/Mxn17V/wEDO+/QseRAARINMgESACZBokAkSATINEgAiQaZAIEAEyDRIBIkCmQSJABMg0SASIAJkGiQARINMgESACZBokAkSATINEQCSduBg4B7wFfgH9wE7HsrkYNcg52lAHPDa2ax/OaJ9UEgAWAo9m6YB9DuWf+9yaCOyfpexD7ZsKHeBAng74AVSEujkXqACG85S33kDeAW5aOqHOUr6Z+DhsabveUv6GSsHplrOW8tUxHdAYsx3QAM5b6rimQgc4YnGi36GOq0RPp0O7Ty11tKnQATY7nFpc6XAwOxdh5484tKkPBv611LNJhQ5QapnINMcd6tke0VCkBa93aO+EpR7tU6lKAkC3xZk3QJnjebG5HtRucWinHHhnqeuuSgrAHofOOeRYV0ORw9GILeMqMPNqVElB393AkMWh765fNgGWAxdMJuNy19+yjfkz5ptvljo/J2b4mcI8vtvoBUoKqFNPlE3AfeCZOU82an736Dy/kLPAum3ggYOdp1TSMHetXkux0RJwyoz5HtEylUSA0w4OjgN7PdhW5ziknVRJBVgCvHdwckxP3PPc+b8d7BpMzCqoxVkX/pghoSRGW/SYf9S0ZUM/lG1TacB8bsyVPmBFDDZUOk64U1xWacEs89rWWaYzZLKdsohSYv2hv6+4o1/GlKs0YfJt/QRcCIN62UKXLaI9nbK2OzzhzuS16zNE4gBqgE8UzgTwxLzmbATWA0vNulOp+a2v7TZLyk8dFtb+x0dgnUozwNqYv4hSLK+AWpUFdIgXOCfETX8cE3/QmBXIS0UOFVGh274YxWSfWICtZuKbb14CW3z7H9I+omMOL3KiQC/enQQW+fY7OJjMZtpNNhI1H0xKu9S3n0nZ3LUDuOPwXiEfX4Db5vVm+JuqQgRYAGwEDgIdDp3eYf53gy7r2/7UgQXf9qUeRAARINMgESACZBokAkSATINEgHcBcnk0GPZsXvoB7uURoNu3fakHqJ1lL6e+VuPbvkzA5Av3LrMDesRsh5fOFwRBEARBEARBEARBEFTI/AMrGyLZUgg5RgAAAABJRU5ErkJggg=="
-              alt="microphone" />
-          </div>
-        </form>
-
-        <form id="upload-form" action="/attach_file" class="attach-button" method="post" enctype="multipart/form-data">
-          <input type="file" id="file-input" name="file" accept="image/*" style="display: none" multiple />
-          <div id="upload-button" onclick="document.getElementById('file-input').click();">
-            <svg id="screpochka" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-              fill="none" stroke="gray" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
-              class="lucide lucide-paperclip mt-0.5 h-5 w-5">
-              <path
-                d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48">
-              </path>
-            </svg>
-          </div>
-        </form>
+      {% elif item["role"] == "assistant" %}
+      <div class="chat-message ai-message">
+        {% for content in item["content"] %} {% if content["type"] == "text"
+        %} {{ content["text"] }} {% elif content["type"] == "image_url" %}
+        <img src="{{ content[" image_url"] }}" alt="Фото" width="150" height="150" /> {% endif %} {% endfor %}
       </div>
+      {% endif %} {% endfor %}
     </div>
 
-    <div class="description-container">
-      <div class="description-header">
-        <div class="description-header-title">Полученные описания</div>
-      </div>
-      <div class="description-content">
-        {% for i,item in enumerate(ai_messages) %}
+    <div class="chat-input">
+      <form action="" method="POST" class="text-form">
+        <input type="text" name="message" placeholder="Введите сообщение" />
+        <input type="submit" value="➜" />
+        <div class="voice-record-button" id="record-button">
+          <img
+            src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGAAAABgCAYAAADimHc4AAAACXBIWXMAAAsTAAALEwEAmpwYAAAEBklEQVR4nO2cy0tXQRTHx8hH0SoKyjQiElctahe0i6CHSgatgqJVlK9oEwlBQa9tEaH0oscmkXamtKmV1V+QEb3sRdlDf1aL1D4xOIJI/mZ+P+915t57PiD8uDgz58z3nplz585cpQRBEARBEARBEAIGWA20AH3AAPDT/A2Ya81AtW87UwewCugExrEzAXQBa3zbnQqAXcAohZMDGnzbn2iANnNHF4su2+rbjyTf+RNz6PzpIkgkFNj5VUUOO/mGo8rY7pa0AVwneq749itJqeZ4DALoOqt8+xc8QCvx0eTbv+ABemMUoMe3f8EDvIhRgAHf/gUP0WY/Mxn17V/wEDO+/QseRAARINMgESACZBokAkSATINEgAiQaZAIEAEyDRIBIkCmQSJABMg0SASIAJkGiQARINMgESACZBokAkSATINEQCSduBg4B7wFfgH9wE7HsrkYNcg52lAHPDa2ax/OaJ9UEgAWAo9m6YB9DuWf+9yaCOyfpexD7ZsKHeBAng74AVSEujkXqACG85S33kDeAW5aOqHOUr6Z+DhsabveUv6GSsHplrOW8tUxHdAYsx3QAM5b6rimQgc4YnGi36GOq0RPp0O7Ty11tKnQATY7nFpc6XAwOxdh5484tKkPBv611LNJhQ5QapnINMcd6tke0VCkBa93aO+EpR7tU6lKAkC3xZk3QJnjebG5HtRucWinHHhnqeuuSgrAHofOOeRYV0ORw9GILeMqMPNqVElB393AkMWh765fNgGWAxdMJuNy19+yjfkz5ptvljo/J2b4mcI8vtvoBUoKqFNPlE3AfeCZOU82an736Dy/kLPAum3ggYOdp1TSMHetXkux0RJwyoz5HtEylUSA0w4OjgN7PdhW5ziknVRJBVgCvHdwckxP3PPc+b8d7BpMzCqoxVkX/pghoSRGW/SYf9S0ZUM/lG1TacB8bsyVPmBFDDZUOk64U1xWacEs89rWWaYzZLKdsohSYv2hv6+4o1/GlKs0YfJt/QRcCIN62UKXLaI9nbK2OzzhzuS16zNE4gBqgE8UzgTwxLzmbATWA0vNulOp+a2v7TZLyk8dFtb+x0dgnUozwNqYv4hSLK+AWpUFdIgXOCfETX8cE3/QmBXIS0UOFVGh274YxWSfWICtZuKbb14CW3z7H9I+omMOL3KiQC/enQQW+fY7OJjMZtpNNhI1H0xKu9S3n0nZ3LUDuOPwXiEfX4Db5vVm+JuqQgRYAGwEDgIdDp3eYf53gy7r2/7UgQXf9qUeRAARINMgESACZBokAkSATINEgHcBcnk0GPZsXvoB7uURoNu3fakHqJ1lL6e+VuPbvkzA5Av3LrMDesRsh5fOFwRBEARBEARBEARBEFTI/AMrGyLZUgg5RgAAAABJRU5ErkJggg=="
+            alt="microphone" />
+        </div>
+      </form>
 
-        <div id="ai-content-{{ i }}" class="description-item"></div>
-
-        {% endfor %}
-      </div>
+      <form id="upload-form" action="/attach_file" class="attach-button" method="post" enctype="multipart/form-data">
+        <input type="file" id="file-input" name="file" accept="image/*" style="display: none" multiple />
+        <div id="upload-button" onclick="document.getElementById('file-input').click();">
+          <svg id="screpochka" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+            stroke="gray" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
+            class="lucide lucide-paperclip mt-0.5 h-5 w-5">
+            <path
+              d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48">
+            </path>
+          </svg>
+        </div>
+      </form>
     </div>
+  </div>
+
+  <div class="description-container">
+    <div class="description-header">
+      <div class="description-header-title">Полученные описания</div>
+    </div>
+    <div class="description-content">
+      {% for i,item in enumerate(ai_messages) %}
+
+      <div id="ai-content-{{ i }}" class="description-item"></div>
+
+      {% endfor %}
+    </div>
+  </div>
   </div>
 </body>
 <script>
