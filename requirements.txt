@@ -10,3 +10,4 @@ openai
 itertools
 datetime
 mistralai
+whisper
