@@ -13,6 +13,7 @@ from map.map import make_href_for_cords, find_cords, make_static_map
 import requests
 import logging
 from ai.voice import transcribe
+import time
 
 logger = logging.getLogger(__name__)
 
@@ -42,7 +43,8 @@ def pipeline_ai():
 
         generated_description = generate_description(info)
         session["ai_messages"].append(generated_description)
-
+        if "Здесь будут описания" in session["ai_messages"]:
+            session["ai_messages"].remove("Здесь будут описания")
         assistant_message = "Описание сгенерировано!"
     else:
         assistant_message = response.choices[0].message.content
@@ -109,9 +111,9 @@ def chat():
     if "uploaded_data_file_path" not in session:
         session["uploaded_data_file_path"] = []
     if "ai_messages" not in session:
-        session["ai_messages"] = (
-            [] + [session["description"]]
-        )  # список сообщений от ассистента --------------------<<<<<< ДОБАВИТЬ НАДО СЮДА ТОЖЕ
+        session["ai_messages"] = [
+            "Здесь будут описания"
+        ]  # список сообщений от ассистента --------------------<<<<<< ДОБАВИТЬ НАДО СЮДА ТОЖЕ
     if "old_fp" not in session:
         session["old_fp"] = []
 
@@ -241,7 +243,7 @@ def form():
 
         session["url"] = url_for("chat")
 
-        session["ai_messages"] = []
+        session["ai_messages"] = ["Здесь будут описания"]
 
         session["messages"] = []
         if session["description"]:
@@ -319,9 +321,7 @@ def upload():
     if "uploaded_data_file_path" not in session:
         session["uploaded_data_file_path"] = []
     if "ai_messages" not in session:
-        session["ai_messages"] = (
-            [] + [session["description"]]
-        )  # список сообщений от ассистента --------------------<<<<<< ДОБАВИТЬ НАДО СЮДА ТОЖЕ
+        session["ai_messages"] = ["Здесь будут описания"]
     if "old_fp" not in session:
         session["old_fp"] = []
     if "audio" not in request.files:
@@ -340,11 +340,11 @@ def upload():
         + "."
         + audio_file.filename.split(".")[-1]
     ).strip()
-    print(allpath)
+    app.logger.debug((allpath))
     audio_file.save(allpath)
     text_from_audio = transcribe(allpath)
 
-    print(text_from_audio)
+    app.logger.debug((text_from_audio))
 
     session["uploaded_audio_file_path"].append(allpath)
 
