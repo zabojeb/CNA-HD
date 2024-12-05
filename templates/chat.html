@@ -337,6 +337,77 @@
         width: 100%;
         gap: 10px;
       }
+      .chat-message {
+        max-width: 70%;
+        padding: 12px 18px;
+        border-radius: 12px;
+        font-size: 16px;
+        line-height: 1.5;
+        word-wrap: break-word;
+        display: inline-block;
+        animation: slideIn 0.3s forwards;
+        margin-bottom: 10px;
+      }
+
+      @keyframes slideIn {
+        from {
+          opacity: 0;
+          transform: translateX(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateX(0);
+        }
+      }
+
+      .user-message {
+        background-color: #c7ecee;
+        color: #333;
+        align-self: flex-end;
+      }
+
+      .user-message:hover {
+        background-color: #a5ced1;
+      }
+
+      .ai-message {
+        background-color: #f6f6f6;
+        color: #333;
+        align-self: flex-start;
+      }
+
+      .ai-message:hover {
+        background-color: #e2e2e2;
+      }
+
+      .chat-message img {
+        max-width: 100%;
+        border-radius: 10px;
+        margin-top: 10px;
+        margin-bottom: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      .chat-message .image-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-top: 10px;
+      }
+
+      .chat-message img {
+        max-width: 100%;
+        height: auto;
+        object-fit: cover;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      }
+
+      @media (max-width: 768px) {
+        .chat-message {
+          max-width: 90%;
+        }
+      }
     </style>
   </head>
 
@@ -346,14 +417,7 @@
         <div class="chat-header">
           <div class="chat-header-title">Информация об отеле</div>
           <div class="chat-info">
-            <p>
-              <span class="label">Описание:</span> {{ session["description"] }}
-            </p>
-            <p><span class="label">Адрес:</span> {{ session["address"] }}</p>
-            <p>
-              <span class="label">Координаты:</span> {{ session["lat"] }}, {{
-              session["lon"] }}
-            </p>
+            <p>Карта</p>
             {% if map %}
             <a href="{{ map }}" target="_blank">
               <img
@@ -374,8 +438,10 @@
           <div class="chat-message user-message">
             {% for content in item["content"] %} {% if content["type"] == "text"
             %} {{ content["text"] }} {% elif content["type"] == "image_url" %}
-            <img src="{{ content["image_url"] }}" alt="Фото" width="150"
-            height="150" /> {% endif %} {% endfor %}
+            <div class="image-container">
+              <img src="{{ content["image_url"] }}" alt="Фото" />
+            </div>
+            {% endif %} {% endfor %}
           </div>
           {% elif item["role"] == "assistant" %}
           <div class="chat-message ai-message">
@@ -512,7 +578,7 @@
   </script>
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <script>
-    let ai_messages = {{ ai_messages| safe }}
+    let ai_messages = {{ ai_messages | safe }}
     ai_messages.forEach((item, i) => {
       document.getElementById('ai-content-' + i).innerHTML =
         marked.parse(item);
