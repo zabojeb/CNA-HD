@@ -16,6 +16,7 @@ from ai.voice import transcribe
 from copy import deepcopy
 from flask_session import Session
 
+
 logger = logging.getLogger(__name__)
 
 INFERENCE_TYPE = "MISTRAL"  # ["MISTRAL", "OPENAI", "HUGGINGFACE"]
@@ -135,9 +136,9 @@ def chat():
     new_photos_non_update = list(
         set(session["uploaded_data_file_path"]) - set(session["old_fp"])
     )
-    app.logger.debug((new_photos_non_update, "new_photos_non_update"))
-    app.logger.debug((session["old_fp"], "old_fp1"))
-    app.logger.debug((session["uploaded_data_file_path"], "uploaded_data_file_path"))
+    # app.logger.debug((new_photos_non_update, "new_photos_non_update"))
+    # app.logger.debug((session["old_fp"], "old_fp1"))
+    # app.logger.debug((session["uploaded_data_file_path"], "uploaded_data_file_path"))
     if request.method == "POST":
         message = request.form["message"]
 
