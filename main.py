@@ -135,6 +135,7 @@ def chat():
     new_photos_non_update = list(
         set(session["uploaded_data_file_path"]) - set(session["old_fp"])
     )
+    print()
     if request.method == "POST":
         message = request.form["message"]
 
@@ -160,7 +161,9 @@ def chat():
         # session['ai_messages']  = [markdown(el) for el in session['ai_messages']]
 
     session.modified = True
-
+    # app.logger.debug(
+    #     (session["uploaded_data_file_path"], new_photos_non_update, "Получили картинки")
+    # )
     if request.method == "POST":
         # ОТОБРАЖЕНИЕ НА POST
         if session["lat"] and session["lon"]:
@@ -381,7 +384,7 @@ def upload():
         app.logger.error(f"Error in pipeline_ai: {e}")
         return "Ошибка при выполнении pipeline_ai", 500
     session.modified = True
-    
+
     return redirect("/chat")
 
 

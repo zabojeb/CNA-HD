@@ -463,6 +463,7 @@
         <div class="chat-header-title">Информация об отеле</div>
         <div class="chat-info">
           {% if map %}
+          <p>Карта</p>
           <a href="{{ map }}" target="_blank">
             <img src="{{ static_map }}" alt="Карта" width="400" height="300" />
           </a>
@@ -520,7 +521,7 @@
     <div class="description-container">
       <div class="description-header">
         <div class="description-header-title">Полученные описания</div>
-        
+
       </div>
       <div class="description-tabs" id="description-tabs">
         <!-- Вкладки будут добавлены здесь -->
@@ -568,7 +569,10 @@
           .catch(error => {
             console.error("Error:", error);
           });
-
+            setTimeout(() => {
+              window.location.reload();
+            }, 15000);
+            
         audioChunks = [];
       };
 
@@ -631,6 +635,12 @@
   chat_messages.forEach((item, i) => {
     document.getElementById('chat-message-' + i).innerHTML =
       marked.parse(item);
+  });
+
+
+  document.addEventListener("DOMContentLoaded", function () {
+    var chatMessages = document.getElementById("chat-messages");
+    chatMessages.scrollTop = chatMessages.scrollHeight;
   });
 </script>
 
