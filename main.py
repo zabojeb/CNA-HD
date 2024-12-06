@@ -13,7 +13,7 @@ from map.map import make_href_for_cords, find_cords, make_static_map
 import requests
 import logging
 from ai.voice import transcribe
-
+from copy import deepcopy
 from flask_session import Session
 
 logger = logging.getLogger(__name__)
@@ -135,7 +135,9 @@ def chat():
     new_photos_non_update = list(
         set(session["uploaded_data_file_path"]) - set(session["old_fp"])
     )
-    print()
+    app.logger.debug((new_photos_non_update, "new_photos_non_update"))
+    app.logger.debug((session["old_fp"], "old_fp1"))
+    app.logger.debug((session["uploaded_data_file_path"], "uploaded_data_file_path"))
     if request.method == "POST":
         message = request.form["message"]
 
@@ -143,7 +145,8 @@ def chat():
             set(session["uploaded_data_file_path"]) - set(session["old_fp"])
         )
 
-        session["old_fp"] = session["uploaded_data_file_path"]
+        session["old_fp"] = deepcopy(session["uploaded_data_file_path"])
+        app.logger.debug((session["old_fp"], "old_fp2"))
 
         if new_photos != []:
             content = [{"type": "text", "text": str(message)}]
@@ -161,9 +164,8 @@ def chat():
         # session['ai_messages']  = [markdown(el) for el in session['ai_messages']]
 
     session.modified = True
-    # app.logger.debug(
-    #     (session["uploaded_data_file_path"], new_photos_non_update, "Получили картинки")
-    # )
+    app.logger.debug((session["old_fp"], "old_fp3"))
+
     if request.method == "POST":
         # ОТОБРАЖЕНИЕ НА POST
         if session["lat"] and session["lon"]:
@@ -363,7 +365,7 @@ def upload():
     session["uploaded_audio_file_path"].append(allpath)
 
     new_photos = list(set(session["uploaded_data_file_path"]) - set(session["old_fp"]))
-    session["old_fp"] = session["uploaded_data_file_path"]
+    session["old_fp"] = deepcopy(session["uploaded_data_file_path"])
 
     if new_photos:
         content = [{"type": "text", "text": str(text_from_audio)}]
