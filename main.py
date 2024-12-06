@@ -15,6 +15,9 @@ import logging
 from ai.voice import transcribe
 from copy import deepcopy
 from flask_session import Session
+from dotenv import load_dotenv
+
+load_dotenv()
 
 logger = logging.getLogger(__name__)
 

@@ -9,7 +9,9 @@ from requests import get
 import os
 
 import flask
+from dotenv import load_dotenv
 
+load_dotenv()
 YANDEX_MAPS_API_KEY = os.getenv("YANDEX_MAPS_API_KEY")
 STATIC_YANDEX_MAPS_API_KEY = os.getenv("STATIC_YANDEX_MAPS_API_KEY")
 

@@ -1,7 +1,9 @@
 from openai import OpenAI
 import time
 import os
+from dotenv import load_dotenv
 
+load_dotenv()
 CHAT_MODEL = "openai/gpt-4o-mini"
 DESCRIPTION_MODEL = "openai/gpt-4o-mini"
 

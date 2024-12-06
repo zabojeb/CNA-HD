@@ -3,7 +3,9 @@ import time
 import base64
 import copy
 import os
+from dotenv import load_dotenv
 
+load_dotenv()
 CHAT_MODEL = "pixtral-large-latest"
 DESCRIPTION_MODEL = "mistral-large-latest"
 
