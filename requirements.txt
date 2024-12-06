@@ -7,8 +7,6 @@ pandas
 geopy
 matplotlib
 openai
-itertools
-datetime
 mistralai
 whisper
 flask_session

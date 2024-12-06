@@ -1,6 +1,11 @@
 import whisper
+import torch
 
-model = whisper.load_model("tiny")
+DEBUG = True
+if DEBUG:
+    model = whisper.load_model("tiny", device="cpu")
+else:
+    model = whisper.load_model("medium", device="cuda" or "cpu" if torch.cuda.is_available() else "cpu")
 
 def transcribe(audio_path):
     if not audio_path:
